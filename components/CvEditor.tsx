@@ -12,7 +12,7 @@ export default function CvEditor({ content }: { content: string }) {
     content: content, 
     editorProps: {
       attributes: {
-        class: 'prose max-w-none focus:outline-none w-[210mm] min-h-[297mm] bg-white shadow-lg p-10 mx-auto',
+        class: 'prose max-w-none focus:outline-none w-[210mm] min-h-[297mm] bg-white shadow-lg p-10 mx-auto print:shadow-none print:p-0 print:m-0',
       },
     },
   })

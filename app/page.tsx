@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, useRef } from "react";
+import { useReactToPrint } from "react-to-print";
 import CvEditor from "../components/CvEditor";
 
 export default function Home() {
@@ -12,9 +13,17 @@ export default function Home() {
   const [cvHtml, setCvHtml] = useState("<h2 class='text-gray-400 text-center mt-20'>Your generated CV will appear here.</h2>");
   const [coverLetterHtml, setCoverLetterHtml] = useState("<h2 class='text-gray-400 text-center mt-20'>Your generated Cover Letter will appear here.</h2>");
   
-  // Track loading states separately
   const [isLoadingCV, setIsLoadingCV] = useState(false);
   const [isLoadingCL, setIsLoadingCL] = useState(false);
+
+  // --- NEW: Print Setup ---
+  const documentRef = useRef<HTMLDivElement>(null);
+  
+  const handleExportPDF = useReactToPrint({
+    contentRef: documentRef, // <-- Updated for v3 API
+    documentTitle: activeTab === 'cv' ? 'Tailored_CV' : 'Cover_Letter',
+  });
+  // ------------------------
 
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -25,9 +34,7 @@ export default function Home() {
     const reader = new FileReader();
     reader.onload = (event) => {
       const content = event.target?.result;
-      if (typeof content === "string") {
-        setProfileMarkdown(content);
-      }
+      if (typeof content === "string") setProfileMarkdown(content);
     };
     reader.readAsText(file);
     e.target.value = '';
@@ -44,7 +51,6 @@ export default function Home() {
       return;
     }
 
-    // Auto-switch to the tab the user just clicked
     setActiveTab(type);
 
     if (type === 'cv') {
@@ -83,7 +89,7 @@ export default function Home() {
     <main className="flex min-h-screen bg-gray-50 text-gray-900">
       
       {/* Left Column: Inputs */}
-      <div className="w-1/3 p-8 border-r bg-white shadow-sm flex flex-col gap-6 overflow-y-auto">
+      <div className="w-1/3 p-8 border-r bg-white shadow-sm flex flex-col gap-6 overflow-y-auto print:hidden">
         <h1 className="text-2xl font-bold">AI CV Builder</h1>
         
         <div className="flex flex-col gap-2">
@@ -120,7 +126,6 @@ export default function Home() {
           />
         </div>
 
-        {/* TWO BUTTONS INSTEAD OF ONE */}
         <div className="flex gap-4 mt-4">
           <button 
             onClick={() => handleGenerate('cv')}
@@ -141,26 +146,38 @@ export default function Home() {
       </div>
 
       {/* Right Column: Output / Editor */}
-      <div className="w-2/3 p-8 bg-gray-100 flex flex-col items-center overflow-y-auto">
+      <div className="w-2/3 p-8 bg-gray-100 flex flex-col items-center overflow-y-auto print:bg-white print:p-0 print:w-full">
         
-        {/* Navigation Tabs */}
-        <div className="w-[210mm] flex gap-4 mb-4 border-b border-gray-300">
+        {/* Navigation Tabs & Export Button */}
+        <div className="w-[210mm] flex justify-between items-end mb-4 border-b border-gray-300 print:hidden">
+          <div className="flex gap-4">
+            <button 
+              onClick={() => setActiveTab('cv')}
+              className={`pb-2 px-4 font-medium transition-colors ${activeTab === 'cv' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+              CV / Resume
+            </button>
+            <button 
+              onClick={() => setActiveTab('coverLetter')}
+              className={`pb-2 px-4 font-medium transition-colors ${activeTab === 'coverLetter' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+              Cover Letter
+            </button>
+          </div>
+
+          {/* Export PDF Button */}
           <button 
-            onClick={() => setActiveTab('cv')}
-            className={`pb-2 px-4 font-medium transition-colors ${activeTab === 'cv' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+            onClick={handleExportPDF}
+            className="mb-2 bg-gray-800 hover:bg-black text-white px-4 py-1.5 rounded text-sm font-semibold transition-colors flex items-center gap-2"
           >
-            CV / Resume
-          </button>
-          <button 
-            onClick={() => setActiveTab('coverLetter')}
-            className={`pb-2 px-4 font-medium transition-colors ${activeTab === 'coverLetter' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
-          >
-            Cover Letter
+            Export to PDF
           </button>
         </div>
 
-        {/* The Editor */}
-        <CvEditor content={activeTab === 'cv' ? cvHtml : coverLetterHtml} />
+        {/* The Editor Wrapper (This specific div is what gets captured for the PDF) */}
+        <div ref={documentRef} className="print:w-full">
+          <CvEditor content={activeTab === 'cv' ? cvHtml : coverLetterHtml} />
+        </div>
       </div>
 
     </main>
