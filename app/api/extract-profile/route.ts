@@ -18,7 +18,8 @@ Use EXACTLY this JSON structure:
   "phone": "Extracted Phone",
   "location": "City, State or Country",
   "linkedin": "LinkedIn URL or handle",
-  "Portfolio": "Portfolio URL or handle"
+  "IndustryPortfolio": "Portfolio URL or handle"
+  "PhDPortfolio": "Portfolio URL or handle"
 }
 `;
 
