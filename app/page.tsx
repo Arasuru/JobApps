@@ -3,10 +3,12 @@
 import { useState, ChangeEvent, useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import CvEditor from "../components/CvEditor";
-import { set } from "zod"; // Note: this isn't currently used, you might want to remove it later
 
-// Import your newly created CSS file here!
+// Imported CSS file here!
 import "./page.css"; 
+
+import JobCoverLetterTemplate from "../components/templates/JobCoverLetterTemplate";
+import GermanJobCvTemplate from "../components/templates/GermanJobCvTemplate";
 
 export default function Home() {
   const [profileMarkdown, setProfileMarkdown] = useState("");
@@ -319,9 +321,33 @@ export default function Home() {
         </div>
 
         <div className="ws-scroll">
-          <div ref={documentRef}>
-            {/* Note: Updated this to use cvData and coverLetterData from your state! */}
-            <CvEditor content={activeTab === "cv" ? cvData : coverLetterData} />
+          <div className="ws-scroll a4-wrapper">
+            <div ref={documentRef}>
+              
+              {/* Loading States */}
+              {activeTab === "cv" && isLoadingCV && (
+                <p style={{color:'#4e7242', textAlign:'center', marginTop:'100px', fontStyle:'italic'}}>
+                  <span style={{ animation: "pulse 1s infinite" }}>⏳</span> ✦ Tailoring your CV…
+                </p>
+              )}
+              {activeTab === "coverLetter" && isLoadingCL && (
+                <p style={{color:'#4e7242', textAlign:'center', marginTop:'100px', fontStyle:'italic'}}>
+                  <span style={{ animation: "pulse 1s infinite" }}>⏳</span> ✦ Drafting your Cover Letter…
+                </p>
+              )}
+
+              {/* Render Documents */}
+              {activeTab === "cv" && !isLoadingCV && cvData && cvTemplate === "job-germany" && (
+                <GermanJobCvTemplate cvData={cvData} personalInfo={personalInfo} />
+              )}
+              
+              {/* (Add other CV templates here later: phd-germany, job-india) */}
+
+              {activeTab === "coverLetter" && !isLoadingCL && coverLetterData && (
+                <JobCoverLetterTemplate clData={coverLetterData} personalInfo={personalInfo} />
+              )}
+
+            </div>
           </div>
         </div>
 

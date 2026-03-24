@@ -41,14 +41,14 @@ export async function POST(req: Request) {
             { "degree": "Degree Name", "institution": "University Name", "date": "YYYY - YYYY", "location": "City, Country", "Focus": "Relevant Focus Area", "Grade": "Final Grade" }
           ],
           "skills": [
-            { "category": "Technical", "items": ["React", "Python"] }
-          ]
+            { "category": "Skill Group", "items": ["Skill1", "Skill2"] }
+          ],
           "publications": [
             { "title": "Publication Title", "journal": "Journal Name", "date": "YYYY", "link": "URL" }
-          ]
+          ],
           "projects": [
             { "name": "Project Name", "description": "Brief description of the project, technologies used, and outcomes.", "keywords": ["Keyword1", "Keyword2"] }
-          ]
+          ],
           "Languages": [
             { "language": "Language Name", "proficiency": "Proficiency Level" }
           ]
