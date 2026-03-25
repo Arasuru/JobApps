@@ -37,6 +37,38 @@ export default function Home() {
   
   const documentRef = useRef<HTMLDivElement>(null);
 
+  // JSON editing state (for advanced users who want to tweak the raw data before rendering)
+  const [isEditingJson, setIsEditingJson] = useState(false);
+  const [jsonString, setJsonString] = useState("");
+  const [jsonError, setJsonError] = useState("");
+
+  const toggleJsonEditor = () => {
+    const targetData = activeTab === "cv" ? cvData : coverLetterData;
+    if (!targetData) {
+      alert("Please generate a document first before editing its data.");
+      return;
+    }
+    // Convert the current JSON object into a nicely formatted string
+    setJsonString(JSON.stringify(targetData, null, 2));
+    setIsEditingJson(true);
+    setJsonError("");
+  };
+  const saveJson = () => {
+    try {
+      // Try to parse their edits back into a real object
+      const parsed = JSON.parse(jsonString);
+      if (activeTab === "cv") setCvData(parsed);
+      else setCoverLetterData(parsed);
+      
+      setIsEditingJson(false); // Close editor on success
+      setJsonError("");
+    } catch (e) {
+      // Catch syntax errors (like missing commas) so the app doesn't crash
+      setJsonError("Invalid JSON. Please check for missing commas or quotes.");
+    }
+  };
+
+
   const handleExportPDF = useReactToPrint({
     contentRef: documentRef,
     documentTitle: activeTab === "cv" ? "Tailored_CV" : "Cover_Letter",
@@ -289,37 +321,59 @@ export default function Home() {
       <main className="workspace">
 
         {/* Sticky dark chrome bar */}
-        <div className="ws-topbar">
-          <span className="ws-label">Document Preview</span>
+        <div className="toolbar-right">
+              {!isEditingJson ? (
+                <>
+                  <div className="tab-group">
+                    <button className={`tab${activeTab === "cv" ? " active" : ""}`} onClick={() => setActiveTab("cv")}>
+                      CV
+                    </button>
+                    <button className={`tab${activeTab === "coverLetter" ? " active" : ""}`} onClick={() => setActiveTab("coverLetter")}>
+                      Cover Letter
+                    </button>
+                  </div>
 
-          <div className="toolbar-right">
-            <div className="tab-group">
-              <button
-                className={`tab${activeTab === "cv" ? " active" : ""}`}
-                onClick={() => setActiveTab("cv")}
-              >
-                CV
-              </button>
-              <button
-                className={`tab${activeTab === "coverLetter" ? " active" : ""}`}
-                onClick={() => setActiveTab("coverLetter")}
-              >
-                Cover Letter
-              </button>
+                  {/* Edit JSON Button */}
+                  <button className="export-btn" onClick={toggleJsonEditor} style={{borderColor: 'transparent', color: 'var(--ink-mid)'}}>
+                    <span className="font-mono font-bold text-[14px] mr-1">{`{ }`}</span> Edit Data
+                  </button>
+
+                  <button className="export-btn" onClick={() => handleExportPDF()}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="7 10 12 15 17 10"/>
+                      <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Export PDF
+                  </button>
+                </>
+              ) : (
+                <>
+                  {/* Editor Controls */}
+                  {jsonError && <span style={{color: '#d9534f', fontSize: '12px', fontWeight: 700}}>{jsonError}</span>}
+                  
+                  <button className="export-btn" onClick={() => setIsEditingJson(false)} style={{borderColor: 'transparent', color: 'var(--ink-mid)'}}>
+                    Cancel
+                  </button>
+                  <button className="export-btn" onClick={saveJson} style={{background: 'var(--moss)', color: 'white', borderColor: 'var(--moss)'}}>
+                    ✓ Apply Changes
+                  </button>
+                </>
+              )}
             </div>
 
-            <button className="export-btn" onClick={() => handleExportPDF()}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-              Export PDF
-            </button>
-          </div>
-        </div>
-
         <div className="ws-scroll">
+          {/* Conditional Workspace Rendering */}
+          {isEditingJson ? (
+            <div className="json-editor-wrapper">
+              <textarea 
+                className="json-textarea" 
+                value={jsonString} 
+                onChange={(e) => setJsonString(e.target.value)} 
+                spellCheck={false}
+              />
+            </div>
+          ) : (          
           <div className="ws-scroll a4-wrapper">
             <div ref={documentRef}>
               
@@ -347,7 +401,7 @@ export default function Home() {
               )}
 
             </div>
-          </div>
+          </div>)}
         </div>
 
       </main>
