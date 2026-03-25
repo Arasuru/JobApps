@@ -1,0 +1,95 @@
+/* ============================================================
+   ACADEMIC COVER LETTER SPECIFIC STYLES
+   ============================================================ */
+
+   :root {
+  --acad-ink:    #111827;
+  --acad-body:   #374151;
+  --acad-muted:  #6b7280;
+  --acad-accent: #1e3a8a; /* Deep academic blue */
+  --acad-line:   #d1d5db;
+  
+  --acad-serif: 'DM Serif Display', 'Times New Roman', Times, serif;
+  --acad-sans:  'DM Sans', 'Helvetica Neue', Arial, sans-serif;
+}
+
+@page { size: A4 portrait; margin: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+@media screen {
+  .acad-page {
+    max-width: 800px;
+    margin: 40px auto;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    border-radius: 2px;
+  }
+}
+
+.acad-cl-wrapper {
+  /* Slightly more padding for the letter body to match standard A4 letter margins */
+  padding: 48px 64px;
+  min-height: 297mm;
+}
+
+/* Recipient and Date Block */
+.acad-cl-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 16px;
+  margin-bottom: 48px;
+}
+
+.acad-cl-recipient {
+  font-size: 10pt;
+  line-height: 1.6;
+  color: var(--acad-ink);
+}
+
+.acad-cl-recipient strong {
+  font-weight: 700;
+  color: var(--acad-accent);
+}
+
+.acad-cl-date {
+  font-size: 10pt;
+  color: var(--acad-muted);
+  font-weight: 500;
+}
+
+/* Letter Content */
+.acad-cl-greeting {
+  font-family: var(--acad-serif);
+  font-size: 12pt;
+  color: var(--acad-ink);
+  margin-bottom: 24px;
+}
+
+.acad-cl-paragraph {
+  font-size: 10.5pt;
+  line-height: 1.75;
+  text-align: justify;
+  margin-bottom: 20px;
+  color: var(--acad-body);
+}
+
+/* Sign-off */
+.acad-cl-signoff-box {
+  margin-top: 56px;
+  font-size: 10.5pt;
+  color: var(--acad-ink);
+}
+
+.acad-cl-signature {
+  font-family: var(--acad-serif);
+  font-size: 12pt;
+  color: var(--acad-accent);
+  font-weight: 400;
+}
+
+@media print {
+  .print-avoid-break {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

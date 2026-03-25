@@ -8,6 +8,9 @@ import "./page.css";
 
 import JobCoverLetterTemplate from "../components/templates/JobCoverLetterTemplate";
 import GermanJobCvTemplate from "../components/templates/GermanJobCvTemplate";
+import AcademicCoverLetterTemplate from "../components/templates/AcademicCoverLetterTemplate";
+import AcademicCvTemplate from "../components/templates/AcademicCvTemplate";
+import IndianJobCvTemplate from "../components/templates/IndianJobCvTemplate";
 
 export default function Home() {
   const [profileMarkdown, setProfileMarkdown] = useState("");
@@ -157,6 +160,55 @@ export default function Home() {
       if (type === "cv") setIsLoadingCV(false);
       else setIsLoadingCL(false);
     }
+  };
+
+  const renderDocument = () => {
+    // 1. Handle Loading States First
+    if (activeTab === "cv" && isLoadingCV) {
+      return (
+        <p style={{color:'#4e7242', textAlign:'center', marginTop:'100px', fontStyle:'italic'}}>
+          <span style={{ animation: "pulse 1s infinite" }}>⏳</span> ✦ Tailoring your CV…
+        </p>
+      );
+    }
+    if (activeTab === "coverLetter" && isLoadingCL) {
+      return (
+        <p style={{color:'#4e7242', textAlign:'center', marginTop:'100px', fontStyle:'italic'}}>
+          <span style={{ animation: "pulse 1s infinite" }}>⏳</span> ✦ Drafting your Cover Letter…
+        </p>
+      );
+    }
+
+    // 2. Route CV Templates
+    if (activeTab === "cv" && cvData) {
+      switch (cvTemplate) {
+        case "job-germany":
+          return <GermanJobCvTemplate cvData={cvData} personalInfo={personalInfo} />;
+        case "job-india":
+          // Make sure you create this file, or comment this line out for now!
+          return <IndianJobCvTemplate cvData={cvData} personalInfo={personalInfo} />;
+        case "phd-germany":
+          // You can route to a specific PhD template when we build it
+          return <AcademicCvTemplate cvData={cvData} personalInfo={personalInfo} />; 
+        default:
+          return <GermanJobCvTemplate cvData={cvData} personalInfo={personalInfo} />; // Fallback
+      }
+    }
+
+    // 3. Route Cover Letter Templates
+    if (activeTab === "coverLetter" && coverLetterData) {
+      switch (clTemplate) {
+        case "job":
+          return <JobCoverLetterTemplate clData={coverLetterData} personalInfo={personalInfo} />;
+        case "phd":
+          // Make sure you create this file, or comment this line out for now!
+          return <AcademicCoverLetterTemplate clData={coverLetterData} personalInfo={personalInfo} />;
+        default:
+          return <JobCoverLetterTemplate clData={coverLetterData} personalInfo={personalInfo} />;
+      }
+    }
+
+    return null; // Return nothing if no data is generated yet
   };
 
   return (
@@ -364,6 +416,7 @@ export default function Home() {
 
         <div className="ws-scroll">
           {/* Conditional Workspace Rendering */}
+          {/* Conditional Workspace Rendering */}
           {isEditingJson ? (
             <div className="json-editor-wrapper">
               <textarea 
@@ -373,35 +426,16 @@ export default function Home() {
                 spellCheck={false}
               />
             </div>
-          ) : (          
-          <div className="ws-scroll a4-wrapper">
-            <div ref={documentRef}>
-              
-              {/* Loading States */}
-              {activeTab === "cv" && isLoadingCV && (
-                <p style={{color:'#4e7242', textAlign:'center', marginTop:'100px', fontStyle:'italic'}}>
-                  <span style={{ animation: "pulse 1s infinite" }}>⏳</span> ✦ Tailoring your CV…
-                </p>
-              )}
-              {activeTab === "coverLetter" && isLoadingCL && (
-                <p style={{color:'#4e7242', textAlign:'center', marginTop:'100px', fontStyle:'italic'}}>
-                  <span style={{ animation: "pulse 1s infinite" }}>⏳</span> ✦ Drafting your Cover Letter…
-                </p>
-              )}
+          ) : (
+            <div className="ws-scroll a4-wrapper">
+              <div ref={documentRef}>
+                
+                {/* Look how clean this is now! */}
+                {renderDocument()}
 
-              {/* Render Documents */}
-              {activeTab === "cv" && !isLoadingCV && cvData && cvTemplate === "job-germany" && (
-                <GermanJobCvTemplate cvData={cvData} personalInfo={personalInfo} />
-              )}
-              
-              {/* (Add other CV templates here later: phd-germany, job-india) */}
-
-              {activeTab === "coverLetter" && !isLoadingCL && coverLetterData && (
-                <JobCoverLetterTemplate clData={coverLetterData} personalInfo={personalInfo} />
-              )}
-
+              </div>
             </div>
-          </div>)}
+          )}
         </div>
 
       </main>

@@ -1,0 +1,244 @@
+/* ============================================================
+   ACADEMIC CV — "SCHOLAR" EDITION
+   Optimized for PhD applications, research roles, and academia.
+   ============================================================ */
+
+:root {
+  --acad-ink:    #111827;
+  --acad-body:   #374151;
+  --acad-muted:  #6b7280;
+  --acad-accent: #1e3a8a; /* Deep academic blue */
+  --acad-line:   #d1d5db;
+  
+  --acad-serif: 'DM Serif Display', 'Times New Roman', Times, serif;
+  --acad-sans:  'DM Sans', 'Helvetica Neue', Arial, sans-serif;
+}
+
+@page { size: A4 portrait; margin: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+@media screen {
+  .acad-page {
+    max-width: 800px;
+    margin: 40px auto;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    border-radius: 2px;
+  }
+}
+
+.acad-page {
+  width: 100%;
+  font-family: var(--acad-sans);
+  font-size: 10pt;
+  line-height: 1.6;
+  color: var(--acad-body);
+  background: #ffffff;
+  padding: 48px 56px;
+}
+
+/* Header */
+.acad-header {
+  text-align: center;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid var(--acad-ink);
+}
+
+.acad-name {
+  font-family: var(--acad-serif);
+  font-size: 28pt;
+  color: var(--acad-ink);
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.acad-subtitle {
+  font-size: 11pt;
+  color: var(--acad-accent);
+  font-weight: 600;
+  margin-bottom: 12px;
+  letter-spacing: 0.5px;
+}
+
+.acad-contact {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 24px;
+  font-size: 9pt;
+  color: var(--acad-body);
+}
+
+.acad-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.acad-contact-item svg {
+  color: var(--acad-muted);
+}
+
+.acad-contact-item a {
+  color: inherit;
+  text-decoration: none;
+}
+.acad-contact-item a:hover {
+  text-decoration: underline;
+  color: var(--acad-accent);
+}
+
+/* Sections */
+.acad-section {
+  margin-bottom: 28px;
+}
+
+.acad-section-title {
+  font-family: var(--acad-serif);
+  font-size: 14pt;
+  color: var(--acad-accent);
+  border-bottom: 1px solid var(--acad-line);
+  padding-bottom: 4px;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  break-after: avoid;
+  page-break-after: avoid;
+}
+
+.acad-text {
+  text-align: justify;
+}
+
+/* Items (Education & Experience) */
+.acad-item {
+  margin-bottom: 16px;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.acad-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 2px;
+}
+
+.acad-degree, .acad-role {
+  font-size: 11pt;
+  font-weight: 700;
+  color: var(--acad-ink);
+}
+
+.acad-date {
+  font-size: 9.5pt;
+  font-weight: 500;
+  color: var(--acad-muted);
+}
+
+.acad-institution {
+  font-size: 10pt;
+  font-weight: 600;
+  color: var(--acad-body);
+}
+
+.acad-subtext {
+  font-size: 9.5pt;
+  color: var(--acad-body);
+  font-style: italic;
+  margin-top: 2px;
+}
+
+.acad-details-list {
+  list-style: none;
+  margin-top: 6px;
+}
+
+.acad-details-list li {
+  font-size: 9.5pt;
+  margin-bottom: 2px;
+}
+
+.acad-bullets {
+  padding-left: 18px;
+  margin-top: 6px;
+}
+
+.acad-bullets li {
+  font-size: 9.5pt;
+  margin-bottom: 4px;
+  text-align: justify;
+}
+
+/* Publications */
+.acad-pub-list {
+  padding-left: 24px;
+}
+
+.acad-pub-item {
+  font-size: 9.5pt;
+  margin-bottom: 8px;
+  text-align: justify;
+  line-height: 1.5;
+}
+
+.acad-pub-item a {
+  color: var(--acad-accent);
+  text-decoration: none;
+}
+
+/* Awards */
+.acad-award-list {
+  display: table;
+  width: 100%;
+}
+
+.acad-award-item {
+  display: table-row;
+}
+
+.acad-award-date {
+  display: table-cell;
+  width: 80px;
+  font-weight: 600;
+  color: var(--acad-ink);
+  padding-bottom: 8px;
+}
+
+.acad-award-name {
+  display: table-cell;
+  padding-bottom: 8px;
+  text-align: justify;
+}
+
+/* Skills */
+.acad-skill-line {
+  margin-bottom: 6px;
+  font-size: 9.5pt;
+}
+.acad-skill-line strong {
+  color: var(--acad-ink);
+}
+
+/* References */
+.acad-ref-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.acad-ref-card {
+  font-size: 9.5pt;
+  line-height: 1.5;
+}
+
+/* Print Utilities */
+@media print {
+  html, body { background: #fff !important; }
+  .acad-page {
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 20px 40px !important; /* Adjust based on browser margins */
+    max-width: 100% !important;
+  }
+}

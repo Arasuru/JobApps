@@ -1,7 +1,7 @@
 "use client";
 
 import React, { forwardRef } from "react";
-import "./german-cv.css";
+import "../css/german-cv.css";
 
 interface Props {
   cvData: any;

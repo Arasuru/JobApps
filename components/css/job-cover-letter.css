@@ -1,0 +1,136 @@
+/* ════════════════════════════════════════════════════════
+   COVER LETTER — Thematic Letterhead Design
+   ════════════════════════════════════════════════════════ */
+
+.cl-wrapper {
+  padding: 40px 48px; /* Slightly wider padding for a standard letter */
+  min-height: 297mm; /* Ensure it looks like A4 on screen */
+}
+
+/* Split Letterhead */
+.cl-header-split {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: 20px;
+  border-bottom: 1.5px solid var(--mist);
+  position: relative;
+  margin-bottom: 40px;
+}
+
+/* Teal accent line matching the CV theme */
+.cl-header-split::after {
+  content: '';
+  position: absolute;
+  bottom: -1.5px; 
+  left: 0;
+  width: 72px; 
+  height: 3px;
+  background: var(--teal);
+}
+
+.cl-sender-name {
+  font-family: var(--serif);
+  font-size: 26pt;
+  color: var(--navy);
+  line-height: 1;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+.cl-sender-title {
+  font-size: 8pt;
+  font-weight: 700;
+  color: var(--teal);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.cl-contact-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  font-size: 8.5pt;
+  color: var(--steel);
+}
+
+.cl-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: inherit;
+  transition: color 0.15s;
+}
+
+.cl-contact-item:hover {
+  color: var(--teal);
+}
+
+.cl-contact-item svg {
+  color: var(--teal);
+  opacity: 0.8;
+}
+
+/* Meta Row: Recipient & Date */
+.cl-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 40px;
+  font-size: 9.5pt;
+}
+
+.cl-recipient-box {
+  color: var(--body);
+  line-height: 1.6;
+}
+
+.cl-recipient-box strong {
+  font-weight: 700;
+  color: var(--navy-mid);
+  font-size: 10.5pt;
+  margin-bottom: 4px;
+}
+
+.cl-date-box {
+  color: var(--steel);
+  font-weight: 500;
+}
+
+/* Body Text */
+.cl-greeting {
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 20px;
+  font-size: 10pt;
+}
+
+.cl-body-text p {
+  margin-bottom: 16px;
+  color: var(--body);
+  text-align: justify;
+  line-height: 1.7;
+  font-size: 9.5pt;
+}
+
+/* Sign-off */
+.cl-signoff-box {
+  margin-top: 48px;
+  font-size: 9.5pt;
+  color: var(--body);
+}
+
+.cl-signature {
+  font-family: var(--serif);
+  font-size: 10pt;
+  color: var(--navy);
+}
+
+@media print {
+  .print-avoid-break {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

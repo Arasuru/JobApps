@@ -59,38 +59,37 @@ export async function POST(req: Request) {
           "companyName": "Company Name",
           "date": "Today's Date",
           "greeting": "Dear [Name],",
-          "paragraphs": ["Opening paragraph...", "Body paragraph...", "Closing paragraph..."],
+          "paragraphs": ["Opening paragraph...", "Body paragraph 1...", "Body paragraph 2...","Body paragraph 3...", "Closing paragraph..."],
           "signOff": "Sincerely,"
         }`;
 
-    const SYSTEM_PROMPT = `
-        You are an expert executive career coach and resume writer. Write everything in English. 
-        Create a highly tailored ${isCV ? 'CV' : 'Cover Letter'}. Use the provided profile and job description to refine data from the document that is optimized for ATS and human readers.
-        ${isCV ? 'For CVs, focus on clear, concise text that highlights relevant experience and skills. Do not return all the skills, just give the skills necessary and relevant for the Job description. Include upto a maximum of3 relevant projects for the job description' :  
-         '- For Cover Letters, craft a compelling narrative that connects the candidate\'s background to the specific requirements of the job. Use persuasive language(but don\'t be obvious) to demonstrate the candidate\'s unique value proposition.'}
-        TEMPLATE RULES:
-        ${templateInstructions}
+    const SYSTEM_PROMPT = `Act as an expert career coach. Respond in English.
+              Generate an ATS-optimized ${isCV ? 'CV' : 'Cover Letter'}. 
 
-        CRITICAL INSTRUCTION: You must respond with ONLY a valid, raw JSON object. 
-        Do not include any markdown formatting (like \`\`\`json), no introductory text, and no conversational filler.
+              CRITICAL RULE - NO HALLUCINATION: 
+              Extract  relevantfacts, skills, and projects STRICTLY from the Master Profile. NEVER invent details or copy experiences from the Job Description. Use the Job Description ONLY as a filter to decide which parts of the Master Profile are relevant.
+              Do not include every skill or project or language from the Master Profile - only those that are relevant to the Job Description. If a skill or project is not relevant to the job, omit it entirely.
+            ${isCV 
+              ? 'CV RULES: Be concise. List only profile skills relevant to the job. Include max 3 most relevant projects.' 
+              : 'COVER LETTER RULES: Write a persuasive narrative linking the candidate\'s actual background to job needs without being cliché.'}
 
-        Use EXACTLY this JSON structure:
-        ${jsonSchema}
-    `;
+            TEMPLATE RULES:
+            ${templateInstructions}
 
-    const USER_PROMPT = `
-      Personal Details (Use these to guide context, do not include them in the JSON body output unless necessary for the letter):
-        ${JSON.stringify(personalInfo, null, 2)}
+            OUTPUT FORMAT: Return ONLY a raw, valid JSON object matching the schema below. NO markdown (\`\`\`json) and NO conversational text.
+            ${jsonSchema}`;
 
-      Master Profile:
-        ${profileMarkdown}
+      const USER_PROMPT = `Personal Context (Exclude from JSON unless required):
+          ${JSON.stringify(personalInfo)}
 
-      Job Description:
-        ${jobDescription}
-    `;
+          MASTER PROFILE (Source of Truth - ONLY use facts from here):
+          ${profileMarkdown}
+
+          JOB DESCRIPTION (Filter - Use ONLY to determine relevance):
+          ${jobDescription}`;
 
     const { text } = await generateText({
-      model: groq('openai/gpt-oss-120b'),
+      model: groq('llama-3.3-70b-versatile'),
       system: SYSTEM_PROMPT,
       prompt: USER_PROMPT,
     });
