@@ -1,0 +1,209 @@
+.cv-page{
+max-width:210mm;
+margin:auto;
+font-family:"Helvetica Neue", Arial, sans-serif;
+font-size:9.5pt;
+line-height:1.55;
+color:#1f2937;
+}
+
+/* HEADER */
+
+.cv-header{
+border-bottom:2px solid #1a2d5a;
+padding-bottom:14px;
+margin-bottom:22px;
+}
+
+.cv-name{
+font-size:26pt;
+font-weight:700;
+margin-bottom:6px;
+}
+
+.cv-contact{
+display:flex;
+flex-wrap:wrap;
+gap:14px;
+font-size:8.5pt;
+color:#374151;
+}
+
+/* LAYOUT */
+
+.cv-layout{
+display:grid;
+grid-template-columns:180px 1fr;
+gap:28px;
+}
+
+.cv-sidebar{
+border-right:1px solid #e5e7eb;
+padding-right:20px;
+}
+
+.cv-main{
+padding-left:10px;
+}
+
+/* SECTIONS */
+
+.cv-section{
+margin-bottom:18px;
+break-inside:avoid;
+}
+
+.cv-title{
+font-size:7pt;
+font-weight:700;
+letter-spacing:2px;
+text-transform:uppercase;
+border-bottom:1.5px solid #c09930;
+margin-bottom:10px;
+}
+
+/* PROFILE */
+
+.cv-profile{
+font-size:8.5pt;
+line-height:1.6;
+}
+
+/* SKILLS */
+
+.cv-skill-group{
+margin-bottom:8px;
+}
+
+.cv-skill-category{
+font-size:7.5pt;
+font-weight:700;
+display:block;
+margin-bottom:4px;
+}
+
+.cv-skill-tags{
+display:flex;
+flex-wrap:wrap;
+gap:4px;
+}
+
+.cv-tag{
+background:#eef1f8;
+padding:2px 6px;
+font-size:7.5pt;
+border-radius:2px;
+}
+
+/* LANGUAGES */
+
+.cv-language{
+display:flex;
+justify-content:space-between;
+font-size:8.5pt;
+border-bottom:1px solid #eef1f8;
+padding:3px 0;
+}
+
+/* EXPERIENCE */
+
+.cv-entry{
+display:grid;
+grid-template-columns:85px 1fr;
+gap:12px;
+margin-bottom:12px;
+break-inside:avoid;
+}
+
+.cv-date{
+font-size:7.5pt;
+text-align:right;
+color:#6b7280;
+}
+
+.cv-role{
+font-size:10pt;
+font-weight:700;
+color:#1a2d5a;
+}
+
+.cv-company{
+font-size:8.5pt;
+color:#4b5563;
+margin-bottom:3px;
+}
+
+/* BULLETS */
+
+.cv-bullets{
+padding-left:14px;
+margin-top:4px;
+}
+
+.cv-bullets li{
+font-size:8.5pt;
+margin-bottom:2px;
+}
+
+/* PROJECTS */
+
+.cv-project{
+margin-bottom:10px;
+border-left:2px solid #eef1f8;
+padding-left:10px;
+}
+
+.cv-project-name{
+font-weight:700;
+}
+
+.cv-tech{
+font-size:7.5pt;
+color:#6b7280;
+}
+
+/* PUBLICATIONS */
+
+.cv-publication{
+font-size:8.5pt;
+margin-bottom:6px;
+}
+
+.cv-link{
+display:block;
+font-size:7.5pt;
+color:#2563eb;
+}
+
+/* PRINT */
+
+@page{
+size:A4;
+margin:14mm 16mm;
+}
+
+@media print{
+
+html,body{
+margin:0;
+padding:0;
+}
+
+.cv-page{
+width:100%;
+}
+
+*{
+-webkit-print-color-adjust:exact;
+print-color-adjust:exact;
+}
+
+.cv-section{
+break-inside:avoid;
+}
+
+.cv-entry{
+break-inside:avoid;
+}
+
+}

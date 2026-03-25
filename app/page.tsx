@@ -2,7 +2,6 @@
 
 import { useState, ChangeEvent, useRef } from "react";
 import { useReactToPrint } from "react-to-print";
-import CvEditor from "../components/CvEditor";
 
 // Imported CSS file here!
 import "./page.css"; 
