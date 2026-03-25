@@ -64,9 +64,9 @@ export async function POST(req: Request) {
         }`;
 
     const SYSTEM_PROMPT = `
-        You are an expert executive career coach and resume writer. 
+        You are an expert executive career coach and resume writer. Write everything in English. 
         Create a highly tailored ${isCV ? 'CV' : 'Cover Letter'}. Use the provided profile and job description to refine data from the document that is optimized for ATS and human readers.
-        ${isCV ? 'For CVs, focus on clear, concise formatting that highlights relevant experience and skills do not make the CV look like jammed with all the skills, just include the most relevant ones. and relevant Projects' :  
+        ${isCV ? 'For CVs, focus on clear, concise text that highlights relevant experience and skills. Do not return all the skills, just give the skills necessary and relevant for the Job description. Include upto a maximum of3 relevant projects for the job description' :  
          '- For Cover Letters, craft a compelling narrative that connects the candidate\'s background to the specific requirements of the job. Use persuasive language(but don\'t be obvious) to demonstrate the candidate\'s unique value proposition.'}
         TEMPLATE RULES:
         ${templateInstructions}
@@ -90,7 +90,7 @@ export async function POST(req: Request) {
     `;
 
     const { text } = await generateText({
-      model: groq('llama-3.3-70b-versatile'),
+      model: groq('openai/gpt-oss-120b'),
       system: SYSTEM_PROMPT,
       prompt: USER_PROMPT,
     });
