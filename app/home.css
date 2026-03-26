@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Nunito:wght@300;400;500;600;700&display=swap');
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+          --bg:          #f0ece4;
+          --panel:       #faf8f4;
+          --border:      #ddd8ce;
+          --moss:        #4e7242;
+          --moss-mid:    #6a9460;
+          --amber:       #c9883a;
+          --ink:         #27231c;
+          --ink-soft:    #9c958c;
+        }
+
+        body {
+          background-color: var(--bg);
+          font-family: 'Nunito', sans-serif;
+          color: var(--ink);
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 40px;
+        }
+
+        .hero {
+          text-align: center;
+          margin-bottom: 60px;
+        }
+
+        .hero h1 {
+          font-family: 'Playfair Display', serif;
+          font-size: 56px;
+          font-weight: 700;
+          color: var(--ink);
+          margin-bottom: 16px;
+          letter-spacing: -0.02em;
+        }
+
+        .hero h1 span {
+          font-style: italic;
+          color: var(--amber);
+          font-weight: 400;
+        }
+
+        .hero p {
+          font-size: 18px;
+          color: var(--ink-soft);
+          max-width: 500px;
+          margin: 0 auto;
+          line-height: 1.6;
+        }
+
+        .grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+          gap: 24px;
+          width: 100%;
+          max-width: 900px;
+        }
+
+        .tile {
+          background: var(--panel);
+          border: 1px solid var(--border);
+          border-radius: 20px;
+          padding: 36px;
+          text-decoration: none;
+          color: var(--ink);
+          transition: all 0.3s ease;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .tile:hover {
+          transform: translateY(-4px);
+          border-color: var(--moss-mid);
+          box-shadow: 0 12px 24px rgba(78,114,66,0.12);
+        }
+
+        .tile-icon {
+          width: 52px;
+          height: 52px;
+          background: #eef5ec;
+          color: var(--moss);
+          border-radius: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .tile-title {
+          font-family: 'Playfair Display', serif;
+          font-size: 26px;
+          font-weight: 700;
+        }
+
+        .tile-desc {
+          font-size: 15px;
+          color: var(--ink-soft);
+          line-height: 1.6;
+        }
+
+        .tile-arrow {
+          margin-top: auto;
+          font-weight: 700;
+          color: var(--moss);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 14px;
+          transition: color 0.2s;
+        }
+        
+        .tile:hover .tile-arrow {
+          color: var(--amber);
+        }
