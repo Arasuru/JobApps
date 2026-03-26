@@ -3,8 +3,7 @@
 import { useState, ChangeEvent, useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 
-// Imported CSS file here!
-import "./page.css"; 
+import "./page.css";
 
 import JobCoverLetterTemplate from "../../components/templates/JobCoverLetterTemplate";
 import GermanJobCvTemplate from "../../components/templates/GermanJobCvTemplate";
@@ -13,6 +12,10 @@ import AcademicCvTemplate from "../../components/templates/AcademicCvTemplate";
 import IndianJobCvTemplate from "../../components/templates/IndianJobCvTemplate";
 
 export default function Home() {
+  // ── Sidebar toggle ──────────────────────────────────────────────────────────
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  // ── Existing state (unchanged) ──────────────────────────────────────────────
   const [profileMarkdown, setProfileMarkdown] = useState("");
   const [fileName, setFileName] = useState<string | null>(null);
   const [jobDescription, setJobDescription] = useState("");
@@ -28,49 +31,45 @@ export default function Home() {
     "PhDPortfolio": ""
   });
   const [isExtracting, setIsExtracting] = useState(false);
-    
+
   const [cvData, setCvData] = useState<any>(null);
   const [coverLetterData, setCoverLetterData] = useState<any>(null);
 
   const [isLoadingCV, setIsLoadingCV] = useState(false);
   const [isLoadingCL, setIsLoadingCL] = useState(false);
 
-  const [cvTemplate, setCvTemplate] = useState("job-germany"); 
-  const [clTemplate, setClTemplate] = useState("job"); 
-  
+  const [cvTemplate, setCvTemplate] = useState("job-germany");
+  const [clTemplate, setClTemplate] = useState("job");
+
   const documentRef = useRef<HTMLDivElement>(null);
 
-  // JSON editing state (for advanced users who want to tweak the raw data before rendering)
   const [isEditingJson, setIsEditingJson] = useState(false);
   const [jsonString, setJsonString] = useState("");
   const [jsonError, setJsonError] = useState("");
 
+  // ── Handlers (all logic unchanged) ─────────────────────────────────────────
   const toggleJsonEditor = () => {
     const targetData = activeTab === "cv" ? cvData : coverLetterData;
     if (!targetData) {
       alert("Please generate a document first before editing its data.");
       return;
     }
-    // Convert the current JSON object into a nicely formatted string
     setJsonString(JSON.stringify(targetData, null, 2));
     setIsEditingJson(true);
     setJsonError("");
   };
+
   const saveJson = () => {
     try {
-      // Try to parse their edits back into a real object
       const parsed = JSON.parse(jsonString);
       if (activeTab === "cv") setCvData(parsed);
       else setCoverLetterData(parsed);
-      
-      setIsEditingJson(false); // Close editor on success
+      setIsEditingJson(false);
       setJsonError("");
     } catch (e) {
-      // Catch syntax errors (like missing commas) so the app doesn't crash
       setJsonError("Invalid JSON. Please check for missing commas or quotes.");
     }
   };
-
 
   const handleExportPDF = useReactToPrint({
     contentRef: documentRef,
@@ -84,7 +83,7 @@ export default function Home() {
     setIsExtracting(true);
 
     const reader = new FileReader();
-    reader.onload = async(event) => {
+    reader.onload = async (event) => {
       const content = event.target?.result;
       if (typeof content === "string") {
         setProfileMarkdown(content);
@@ -96,7 +95,7 @@ export default function Home() {
           });
           const data = await res.json();
           if (data && !data.error) {
-            setPersonalInfo(data); 
+            setPersonalInfo(data);
           }
         } catch (err) {
           console.error("Extraction failed", err);
@@ -119,15 +118,15 @@ export default function Home() {
       alert("Please provide both your profile and the job description.");
       return;
     }
-    
+
     setActiveTab(type);
-    
+
     if (type === "cv") {
       setIsLoadingCV(true);
-      setCvData(null); 
+      setCvData(null);
     } else {
       setIsLoadingCL(true);
-      setCoverLetterData(null); 
+      setCoverLetterData(null);
     }
 
     const payload = {
@@ -135,7 +134,7 @@ export default function Home() {
       jobDescription,
       documentType: type,
       templateType: type === "cv" ? cvTemplate : clTemplate,
-      personalInfo
+      personalInfo,
     };
 
     try {
@@ -144,9 +143,9 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      
+
       const data = await response.json();
-      
+
       if (data.documentData) {
         if (type === "cv") setCvData(data.documentData);
         else setCoverLetterData(data.documentData);
@@ -162,73 +161,125 @@ export default function Home() {
     }
   };
 
+  // ── Document renderer (logic unchanged, loading colors updated) ─────────────
   const renderDocument = () => {
-    // 1. Handle Loading States First
     if (activeTab === "cv" && isLoadingCV) {
       return (
-        <p style={{color:'#4e7242', textAlign:'center', marginTop:'100px', fontStyle:'italic'}}>
-          <span style={{ animation: "pulse 1s infinite" }}>⏳</span> ✦ Tailoring your CV…
+        <p style={{
+          color: '#f0855a',
+          textAlign: 'center',
+          marginTop: '100px',
+          fontStyle: 'italic',
+          fontFamily: 'DM Sans, sans-serif',
+          fontSize: '15px',
+          letterSpacing: '0.01em',
+        }}>
+          <span style={{ animation: "pulse 1s infinite", marginRight: '8px' }}>⏳</span>
+          ✦ Tailoring your CV…
         </p>
       );
     }
     if (activeTab === "coverLetter" && isLoadingCL) {
       return (
-        <p style={{color:'#4e7242', textAlign:'center', marginTop:'100px', fontStyle:'italic'}}>
-          <span style={{ animation: "pulse 1s infinite" }}>⏳</span> ✦ Drafting your Cover Letter…
+        <p style={{
+          color: '#f0855a',
+          textAlign: 'center',
+          marginTop: '100px',
+          fontStyle: 'italic',
+          fontFamily: 'DM Sans, sans-serif',
+          fontSize: '15px',
+          letterSpacing: '0.01em',
+        }}>
+          <span style={{ animation: "pulse 1s infinite", marginRight: '8px' }}>⏳</span>
+          ✦ Drafting your Cover Letter…
         </p>
       );
     }
 
-    // 2. Route CV Templates
     if (activeTab === "cv" && cvData) {
       switch (cvTemplate) {
         case "job-germany":
           return <GermanJobCvTemplate cvData={cvData} personalInfo={personalInfo} />;
         case "job-india":
-          // Make sure you create this file, or comment this line out for now!
           return <IndianJobCvTemplate cvData={cvData} personalInfo={personalInfo} />;
         case "phd-germany":
-          // You can route to a specific PhD template when we build it
-          return <AcademicCvTemplate cvData={cvData} personalInfo={personalInfo} />; 
+          return <AcademicCvTemplate cvData={cvData} personalInfo={personalInfo} />;
         default:
-          return <GermanJobCvTemplate cvData={cvData} personalInfo={personalInfo} />; // Fallback
+          return <GermanJobCvTemplate cvData={cvData} personalInfo={personalInfo} />;
       }
     }
 
-    // 3. Route Cover Letter Templates
     if (activeTab === "coverLetter" && coverLetterData) {
       switch (clTemplate) {
         case "job":
           return <JobCoverLetterTemplate clData={coverLetterData} personalInfo={personalInfo} />;
         case "phd":
-          // Make sure you create this file, or comment this line out for now!
           return <AcademicCoverLetterTemplate clData={coverLetterData} personalInfo={personalInfo} />;
         default:
           return <JobCoverLetterTemplate clData={coverLetterData} personalInfo={personalInfo} />;
       }
     }
 
-    return null; // Return nothing if no data is generated yet
+    // Empty state
+    return (
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '60vh',
+        gap: '12px',
+        color: '#4a3e36',
+        fontFamily: 'DM Sans, sans-serif',
+      }}>
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#4a3e36" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+        <p style={{ fontSize: '14px', fontStyle: 'italic' }}>Your document will appear here</p>
+      </div>
+    );
   };
 
+  // ── JSX ─────────────────────────────────────────────────────────────────────
   return (
-    <div className="root">
-      {/* ── FIXED SIDEBAR ── */}
+    <div className={`root${sidebarOpen ? "" : " sidebar-closed"}`}>
+
+      {/* Backdrop — clicking closes sidebar */}
+      <div
+        className="sidebar-backdrop"
+        onClick={() => setSidebarOpen(false)}
+      />
+
+      {/* ── SIDEBAR ── */}
       <aside className="sidebar">
         <div className="sb-header">
-          <h1 className="sb-title">
-             &copy;Arasuru
-          </h1>
+          <h1 className="sb-title">The Career <span>Studio</span></h1>
+          <button
+            className="sb-close-btn"
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Close sidebar"
+          >
+            ✕
+          </button>
         </div>
 
         <div className="sb-body">
+
           {/* Profile */}
           <div className="field-block">
             <div className="field-row">
               <span className="field-label">Your Profile</span>
               <label className="upload-pill">
                 ↑ Upload .md
-                <input type="file" accept=".md,.txt" style={{ display: "none" }} onChange={handleFileUpload} />
+                <input
+                  type="file"
+                  accept=".md,.txt"
+                  style={{ display: "none" }}
+                  onChange={handleFileUpload}
+                />
               </label>
             </div>
             {fileName && (
@@ -243,7 +294,9 @@ export default function Home() {
               onChange={(e) => setProfileMarkdown(e.target.value)}
               placeholder="Paste your markdown profile, or upload a .md file…"
             />
-            {/* --- Extracted Info Panel --- */}
+          </div>
+
+          {/* Personal Details */}
           <div className="field-block">
             <div className="field-row">
               <span className="field-label">Personal Details</span>
@@ -251,62 +304,59 @@ export default function Home() {
                 <span className="extracting-status">⏳ Extracting...</span>
               )}
             </div>
-            
             <div className="info-grid">
-              <input 
-                type="text" placeholder="First Name" 
-                value={personalInfo.Firstname} 
-                onChange={e => setPersonalInfo({...personalInfo, Firstname: e.target.value})}
-                className="input-field" 
+              <input
+                type="text" placeholder="First Name"
+                value={personalInfo.Firstname}
+                onChange={e => setPersonalInfo({ ...personalInfo, Firstname: e.target.value })}
+                className="input-field"
               />
-              <input 
-                type="text" placeholder="Last Name" 
-                value={personalInfo.Lastname} 
-                onChange={e => setPersonalInfo({...personalInfo, Lastname: e.target.value})}
-                className="input-field" 
+              <input
+                type="text" placeholder="Last Name"
+                value={personalInfo.Lastname}
+                onChange={e => setPersonalInfo({ ...personalInfo, Lastname: e.target.value })}
+                className="input-field"
               />
-              <input 
-                type="email" placeholder="Email" 
-                value={personalInfo.email} 
-                onChange={e => setPersonalInfo({...personalInfo, email: e.target.value})}
-                className="input-field" 
+              <input
+                type="email" placeholder="Email"
+                value={personalInfo.email}
+                onChange={e => setPersonalInfo({ ...personalInfo, email: e.target.value })}
+                className="input-field"
               />
-              <input 
-                type="text" placeholder="Phone" 
-                value={personalInfo.phone} 
-                onChange={e => setPersonalInfo({...personalInfo, phone: e.target.value})}
-                className="input-field" 
+              <input
+                type="text" placeholder="Phone"
+                value={personalInfo.phone}
+                onChange={e => setPersonalInfo({ ...personalInfo, phone: e.target.value })}
+                className="input-field"
               />
-              <input 
-                type="text" placeholder="Location" 
-                value={personalInfo.location} 
-                onChange={e => setPersonalInfo({...personalInfo, location: e.target.value})}
-                className="input-field" 
+              <input
+                type="text" placeholder="Location"
+                value={personalInfo.location}
+                onChange={e => setPersonalInfo({ ...personalInfo, location: e.target.value })}
+                className="input-field"
               />
-              <input 
-                type="text" placeholder="Industry Portfolio URL" 
-                value={personalInfo.IndustryPortfolio} 
-                onChange={e => setPersonalInfo({...personalInfo, IndustryPortfolio: e.target.value})}
-                className="input-field" 
+              <input
+                type="text" placeholder="Industry Portfolio URL"
+                value={personalInfo.IndustryPortfolio}
+                onChange={e => setPersonalInfo({ ...personalInfo, IndustryPortfolio: e.target.value })}
+                className="input-field"
               />
-              <input 
-                type="text" placeholder="PhD Portfolio URL" 
-                value={personalInfo.PhDPortfolio} 
-                onChange={e => setPersonalInfo({...personalInfo, PhDPortfolio: e.target.value})}
-                className="input-field" 
+              <input
+                type="text" placeholder="PhD Portfolio URL"
+                value={personalInfo.PhDPortfolio}
+                onChange={e => setPersonalInfo({ ...personalInfo, PhDPortfolio: e.target.value })}
+                className="input-field"
               />
-              <input 
-                type="text" placeholder="LinkedIn URL" 
-                value={personalInfo.linkedin} 
-                onChange={e => setPersonalInfo({...personalInfo, linkedin: e.target.value})}
-                className="input-field col-span-2" 
+              <input
+                type="text" placeholder="LinkedIn URL"
+                value={personalInfo.linkedin}
+                onChange={e => setPersonalInfo({ ...personalInfo, linkedin: e.target.value })}
+                className="input-field col-span-2"
               />
             </div>
           </div>
-          {/* ------------------------------- */}
-          </div>
 
-          {/* Job description */}
+          {/* Job Description */}
           <div className="field-block">
             <div className="field-row">
               <span className="field-label">Job Description</span>
@@ -318,35 +368,36 @@ export default function Home() {
               placeholder="Paste the job listing here…"
             />
           </div>
-        </div>
-        {/* Template Selection */}
-        <div className="field-block" style={{ paddingBottom: '10px' }}>
-          <div className="field-row">
-            <span className="field-label">Document Templates</span>
+
+          {/* Template Selection */}
+          <div className="field-block">
+            <div className="field-row">
+              <span className="field-label">Document Templates</span>
+            </div>
+            <div className="info-grid">
+              <select
+                value={cvTemplate}
+                onChange={(e) => setCvTemplate(e.target.value)}
+                className="input-field"
+              >
+                <option value="job-germany">CV: Job (Germany)</option>
+                <option value="phd-germany">CV: PhD (Germany)</option>
+                <option value="job-india">CV: Job (India)</option>
+              </select>
+              <select
+                value={clTemplate}
+                onChange={(e) => setClTemplate(e.target.value)}
+                className="input-field"
+              >
+                <option value="job">Letter: Job</option>
+                <option value="phd">Letter: PhD</option>
+              </select>
+            </div>
           </div>
-          <div className="info-grid">
-            <select 
-              value={cvTemplate} 
-              onChange={(e) => setCvTemplate(e.target.value)}
-              className="input-field"
-            >
-              <option value="job-germany">CV: Job (Germany)</option>
-              <option value="phd-germany">CV: PhD (Germany)</option>
-              <option value="job-india">CV: Job (India)</option>
-            </select>
-              
-            <select 
-              value={clTemplate} 
-              onChange={(e) => setClTemplate(e.target.value)}
-              className="input-field"
-            >
-              <option value="job">Letter: Job</option>
-              <option value="phd">Letter: PhD</option>
-            </select>
-          </div>
+
         </div>
 
-        {/* Pinned generate buttons */}
+        {/* Pinned footer — generate buttons */}
         <div className="sb-footer">
           <button
             className="btn-cv"
@@ -369,77 +420,108 @@ export default function Home() {
         </div>
       </aside>
 
-      {/* ── RIGHT WORKSPACE ── */}
+      {/* ── WORKSPACE ── */}
       <main className="workspace">
 
-        {/* Sticky dark chrome bar */}
-        <div className="toolbar-right">
-              {!isEditingJson ? (
-                <>
-                  <div className="tab-group">
-                    <button className={`tab${activeTab === "cv" ? " active" : ""}`} onClick={() => setActiveTab("cv")}>
-                      CV
-                    </button>
-                    <button className={`tab${activeTab === "coverLetter" ? " active" : ""}`} onClick={() => setActiveTab("coverLetter")}>
-                      Cover Letter
-                    </button>
-                  </div>
+        {/* Top chrome bar */}
+        <div className="ws-topbar">
 
-                  {/* Edit JSON Button */}
-                  <button className="export-btn" onClick={toggleJsonEditor} style={{borderColor: 'transparent', color: 'var(--ink-mid)'}}>
-                    <span className="font-mono font-bold text-[14px] mr-1">{`{ }`}</span> Edit Data
-                  </button>
+          {/* Hamburger toggle */}
+          <button
+            className="sidebar-toggle-btn"
+            onClick={() => setSidebarOpen(o => !o)}
+            aria-label="Toggle sidebar"
+          >
+            <span /><span /><span />
+          </button>
 
-                  <button className="export-btn" onClick={() => handleExportPDF()}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                      <polyline points="7 10 12 15 17 10"/>
-                      <line x1="12" y1="15" x2="12" y2="3"/>
-                    </svg>
-                    Export PDF
-                  </button>
-                </>
-              ) : (
-                <>
-                  {/* Editor Controls */}
-                  {jsonError && <span style={{color: '#d9534f', fontSize: '12px', fontWeight: 700}}>{jsonError}</span>}
-                  
-                  <button className="export-btn" onClick={() => setIsEditingJson(false)} style={{borderColor: 'transparent', color: 'var(--ink-mid)'}}>
-                    Cancel
-                  </button>
-                  <button className="export-btn" onClick={saveJson} style={{background: 'var(--moss)', color: 'white', borderColor: 'var(--moss)'}}>
-                    ✓ Apply Changes
-                  </button>
-                </>
-              )}
-            </div>
+          {/* Centered label */}
+          <span className="ws-label">Career Studio</span>
 
+          {/* Right toolbar */}
+          <div className="toolbar-right">
+            {!isEditingJson ? (
+              <>
+                <div className="tab-group">
+                  <button
+                    className={`tab${activeTab === "cv" ? " active" : ""}`}
+                    onClick={() => setActiveTab("cv")}
+                  >
+                    CV
+                  </button>
+                  <button
+                    className={`tab${activeTab === "coverLetter" ? " active" : ""}`}
+                    onClick={() => setActiveTab("coverLetter")}
+                  >
+                    Cover Letter
+                  </button>
+                </div>
+
+                <button
+                  className="export-btn"
+                  onClick={toggleJsonEditor}
+                  style={{ borderColor: 'transparent' }}
+                >
+                  <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '13px' }}>{`{ }`}</span>
+                  Edit Data
+                </button>
+
+                <button className="export-btn" onClick={() => handleExportPDF()}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  Export PDF
+                </button>
+              </>
+            ) : (
+              <>
+                {jsonError && (
+                  <span style={{ color: '#f0855a', fontSize: '12px', fontWeight: 600 }}>
+                    {jsonError}
+                  </span>
+                )}
+                <button
+                  className="export-btn"
+                  onClick={() => setIsEditingJson(false)}
+                  style={{ borderColor: 'transparent' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="export-btn"
+                  onClick={saveJson}
+                  style={{ background: 'var(--ember)', color: 'var(--coral)', borderColor: 'var(--ember)' }}
+                >
+                  ✓ Apply Changes
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Scrollable content */}
         <div className="ws-scroll">
-          {/* Conditional Workspace Rendering */}
-          {/* Conditional Workspace Rendering */}
           {isEditingJson ? (
             <div className="json-editor-wrapper">
-              <textarea 
-                className="json-textarea" 
-                value={jsonString} 
-                onChange={(e) => setJsonString(e.target.value)} 
+              <textarea
+                className="json-textarea"
+                value={jsonString}
+                onChange={(e) => setJsonString(e.target.value)}
                 spellCheck={false}
               />
             </div>
           ) : (
-            <div className="ws-scroll a4-wrapper">
+            <div className="a4-wrapper">
               <div ref={documentRef}>
-                
-                {/* Look how clean this is now! */}
                 {renderDocument()}
-
               </div>
             </div>
           )}
         </div>
 
       </main>
-
     </div>
   );
 }
