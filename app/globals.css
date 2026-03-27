@@ -1,27 +1,55 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ── Shared design tokens — single source of truth ────────────────────────
+   All pages inherit these. Individual page CSS can still override locally.
+────────────────────────────────────────────────────────────────────────── */
+:root {
+  --bg:            #1a1614;
+  --bg-mid:        #201c19;
+  --panel:         #242018;
+  --panel-hover:   #2e2820;
+  --border:        #38302a;
+  --border2:       #4a3e36;
+  --ember:         #c44a25;
+  --ember-mid:     #f0855a;
+  --ember-soft:    rgba(196, 74, 37, 0.13);
+  --coral:         #f7ece6;
+  --coral-soft:    #3a2c24;
+  --ink:           #f0e8e0;
+  --ink-mid:       #b8a89c;
+  --ink-soft:      #7a6a5e;
+  --ink-faint:     #4a3e36;
+  --tray:          #141210;
+  --tray-dark:     #0e0c0a;
+  --radius-sm:     8px;
+  --radius-md:     13px;
+  --radius-lg:     20px;
+}
+
+/* ── Base reset — applied immediately before any JS runs ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  height: 100%;
+  /* Dark background on html itself prevents any white flash */
+  background-color: var(--bg);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  height: 100%;
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: 'DM Sans', var(--font-geist-sans), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }

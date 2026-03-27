@@ -2,8 +2,8 @@
 
 import { useState, ChangeEvent, useRef } from "react";
 import { useReactToPrint } from "react-to-print";
-
-import "./page.css";
+import Link from "next/link";
+import "./builder.css";
 
 import JobCoverLetterTemplate from "../../components/templates/JobCoverLetterTemplate";
 import GermanJobCvTemplate from "../../components/templates/GermanJobCvTemplate";
@@ -257,6 +257,12 @@ export default function Home() {
       <aside className="sidebar">
         <div className="sb-header">
           <h1 className="sb-title">The Career <span>Studio</span></h1>
+          <button
+            className="sb-close-btn"
+            aria-label="Close sidebar"
+          >
+            <Link href="/" >←</Link>
+          </button>
           <button
             className="sb-close-btn"
             onClick={() => setSidebarOpen(false)}
