@@ -9,10 +9,6 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Create a virtual environment and install PyMuPDF
-RUN python3 -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
-RUN pip install pymupdf
 # We need to pass the Groq API key at build time so the build succeeds, 
 # though it will be overridden by the runtime env variable later.
 ENV GROQ_API_KEY=dummy_key_for_build 

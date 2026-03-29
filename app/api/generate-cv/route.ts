@@ -34,6 +34,7 @@ export async function POST(req: Request) {
     const jsonSchema = isCV 
       ? `{
           "summary": "Professional summary paragraph",
+          "researchInterests": ["Interest 1", "Interest 2"],
           "experience": [
             { "role": "Job Title", "company": "Company Name", "date": "MM/YYYY - MM/YYYY", "location": "City, Country", "achievements": ["Bullet 1", "Bullet 2"] }
           ],
