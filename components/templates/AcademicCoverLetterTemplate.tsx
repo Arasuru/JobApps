@@ -50,7 +50,7 @@ const AcademicCoverLetterTemplate = forwardRef<HTMLDivElement, Props>(({ clData,
             <span className="acad-contact-item">{Icons.location} <span contentEditable suppressContentEditableWarning>{personalInfo.location}</span></span>
           )}
           {personalInfo.PhDPortfolio && (
-            <span className="acad-contact-item">{Icons.link} <a href={toHref(personalInfo.PhDPortfolio)} target="_blank" rel="noreferrer" contentEditable suppressContentEditableWarning>{'arasuru.github.io'}</a></span>
+            <span className="acad-contact-item">{Icons.link} <a href={toHref(personalInfo.PhDPortfolio)} target="_blank" rel="noreferrer" contentEditable suppressContentEditableWarning>{personalInfo.PhDPortfolio}</a></span>
           )}
         </div>
       </header>

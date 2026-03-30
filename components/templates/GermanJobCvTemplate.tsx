@@ -59,7 +59,7 @@ const GermanJobCvTemplate = forwardRef<HTMLDivElement, Props>(({ cvData, persona
           )}
           {personalInfo.IndustryPortfolio && (
             <a href={toHref(personalInfo.IndustryPortfolio)} target="_blank" rel="noreferrer" className="cv-contact-item">
-              {Icons.web}<span contentEditable  suppressContentEditableWarning>{'arasuru.github.io'}</span>
+              {Icons.web}<span contentEditable  suppressContentEditableWarning>{personalInfo.IndustryPortfolio}</span>
             </a>
           )}
         </nav>

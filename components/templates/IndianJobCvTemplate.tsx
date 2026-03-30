@@ -54,7 +54,7 @@ const IndianJobCvTemplate = forwardRef<HTMLDivElement, Props>(({ cvData, persona
             <>
               <span className="in-separator">|</span>
               <span className="in-contact-item">
-                <strong>Portfolio:</strong> <a href={`https://${personalInfo.IndustryPortfolio}`} target="_blank" rel="noreferrer" contentEditable suppressContentEditableWarning>{'arasuru.github.io'}</a>
+                <strong>Portfolio:</strong> <a href={`https://${personalInfo.IndustryPortfolio}`} target="_blank" rel="noreferrer" contentEditable suppressContentEditableWarning>{personalInfo.IndustryPortfolio}</a>
               </span>
             </>
           )}

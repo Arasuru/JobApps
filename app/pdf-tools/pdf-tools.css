@@ -177,6 +177,7 @@ body {
   animation: fadeUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+
 /* Top shimmer line */
 .tool-container::before {
   content: '';
@@ -216,6 +217,9 @@ body {
   flex-direction: column;
   gap: 7px;
   margin-bottom: 22px;
+  max-height: 80px; /* Adjust this! 180px usually fits about 4 files before scrolling */
+  overflow-y: auto;  /* Tells the browser to add a vertical scrollbar ONLY if needed */
+  padding-right: 6px;
 }
 
 .file-item {
@@ -228,6 +232,15 @@ body {
   display: flex;
   justify-content: space-between;
   border: 1px solid rgba(240, 133, 90, 0.18);
+  align-items: center; /* Keeps the text and the delete icon perfectly centered vertically */
+  overflow: hidden;
+}
+
+.file-item span{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 10px; /* Prevents the text from smashing into your delete icon */
 }
 
 /* ── Action button ── */
