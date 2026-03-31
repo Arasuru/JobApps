@@ -71,9 +71,18 @@ export default function Home() {
     }
   };
 
+  const getDocumentTitle = () => {
+    
+    const companyName = coverLetterData?.companyName || "Company";
+    const safeCompanyName = companyName.replace(/[\s/\\:*?"<>|]/g, "_");
+
+    if (activeTab === "cv") return "CV_" + safeCompanyName;
+    return `Cover_Letter_${safeCompanyName}`;
+  };
+
   const handleExportPDF = useReactToPrint({
     contentRef: documentRef,
-    documentTitle: activeTab === "cv" ? "Tailored_CV" : "Cover_Letter",
+    documentTitle: getDocumentTitle(),
   });
 
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
