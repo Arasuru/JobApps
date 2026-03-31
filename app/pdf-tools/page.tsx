@@ -69,6 +69,7 @@ export default function PdfToolsPage() {
   // --- TOOL 3: EXTRACT TEXT TO MARKDOWN ---
   const handleExtractText = async () => {
     if (files.length !== 1) return alert("Please upload exactly 1 PDF to extract.");
+    
     setProcessing(true);
     setMarkdownOutput("");
 
@@ -81,19 +82,48 @@ export default function PdfToolsPage() {
         body: formData,
       });
 
-      const data = await res.json();
+      // 1. Grab the raw response as plain text FIRST, no matter what it is.
+      const rawText = await res.text(); 
+
+      // 2. If the server threw a 500 error, stop here and show us the real problem.
+      if (!res.ok) {
+         console.error("The Server completely crashed:", rawText);
+         alert(`Server Error: ${res.status}. Check console for details.`);
+         return; // The 'finally' block below will still run and turn off the spinner!
+      }
+
+      // 3. If it IS ok, now it is safe to turn that text into JSON.
+      const data = JSON.parse(rawText);
 
       if (data.text) {
-        setMarkdownOutput(data.text.trim());
-      } else {
-        alert("Extraction Error: " + (data.error || "Unknown error"));
+        // 1. Package the text into a Markdown file (Blob)
+        const blob = new Blob(["\uFEFF" + data.text.trim()], { type: 'text/markdown;charset=utf-8' });
+        
+        // 2. Create an invisible download link
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        
+        // 3. Name the file (If you have a 'files' state, we try to use its name, otherwise fallback)
+        const originalName = files[0]?.name || 'document.pdf';
+        link.download = originalName.replace(/\.pdf$/i, '.md'); 
+        
+        // 4. Force the browser to click the link, then clean up the garbage
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
       }
+      
     } catch (error) {
-      console.error(error);
-      alert("Failed to connect to the extraction API.");
+      // Catches network failures (like if the Python server is offline)
+      console.error("Network or Parsing Error:", error);
+      alert("Failed to connect to the server or parse the file.");
+      
+    } finally {
+      // 💡 This guarantees your UI spinner turns off, no matter what happened above!
+      setProcessing(false);
     }
-
-    setProcessing(false);
   };
 
   const downloadFile = (data: Uint8Array, filename: string, type: string) => {
@@ -151,22 +181,10 @@ export default function PdfToolsPage() {
 
           {/* Coming soon — disabled */}
           <button
-            className="tab-btn"
-            disabled
-            style={{ opacity: 0.45, cursor: 'not-allowed' }}
+            className={`tab-btn${activeTab === "markdown" ? " active" : ""}`}
+            onClick={() => { setActiveTab("markdown"); clearFiles(); }}
           >
             Extract Text
-            <span style={{
-              fontSize: '10px',
-              color: 'var(--ink-faint)',
-              background: 'var(--bg-mid)',
-              border: '1px solid var(--border)',
-              borderRadius: '20px',
-              padding: '2px 8px',
-              fontWeight: 500,
-            }}>
-              Soon
-            </span>
           </button>
         </div>
       </div>

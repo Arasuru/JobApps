@@ -1,31 +1,23 @@
-FROM node:20-alpine AS deps
-WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci
+# /Dockerfile (Root directory)
 
-# Stage 2: Build the application
-FROM node:20-alpine AS builder
+# Use a lightweight Node image
+FROM node:20-alpine
+
+# Set the working directory
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+
+# Copy package files and install dependencies
+COPY package.json package-lock.json* ./
+RUN npm install
+
+# Copy all other project files
 COPY . .
 
-# We need to pass the Groq API key at build time so the build succeeds, 
-# though it will be overridden by the runtime env variable later.
-ENV GROQ_API_KEY=dummy_key_for_build 
+# Build the Next.js application
 RUN npm run build
 
-# Stage 3: Production server
-FROM node:20-alpine AS runner
-WORKDIR /app
-ENV NODE_ENV=production
-
-# Copy the standalone output and static files
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-
+# Expose the Next.js port
 EXPOSE 3000
-ENV PORT=3000
 
-# Start the standalone Next.js server
-CMD ["node", "server.js"]
+# Start the application
+CMD ["npm", "start"]

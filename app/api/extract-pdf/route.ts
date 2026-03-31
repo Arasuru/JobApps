@@ -1,9 +1,17 @@
-import { NextResponse } from 'next/server';
+// app/api/pdf-to-md/route.ts
+export async function POST(request: Request) {
+  const formData = await request.formData();
+  
+  const parserUrl = process.env.PARSER_URL || 'http://127.0.0.1:8000';
+  // Forward the exact formData to your Python container
+  const pythonResponse = await fetch(`${parserUrl}/convert-to-md`, {
+    method: 'POST',
+    body: formData,
+  });
 
-export async function POST() {
-  // Returns a polite 200 OK response so the frontend doesn't crash if accidentally triggered
-  return NextResponse.json(
-    { message: "This feature is currently disabled." }, 
-    { status: 200 }
-  );
+  const data = await pythonResponse.json();
+  // 💡 TRANSLATION LAYER: 
+  // Python sends { markdown: "..." }, but our React UI expects { text: "..." }
+  // This maps it perfectly so the frontend doesn't crash!
+  return Response.json({ text: data.markdown });
 }
