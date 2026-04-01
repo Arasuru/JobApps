@@ -8,3 +8,6 @@ README.md
 .gitignore
 /venv/
 /parser-service/venv/
+venv
+__pycache__
+.env

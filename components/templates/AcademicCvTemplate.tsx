@@ -3,59 +3,9 @@
 import React, { forwardRef } from "react";
 import "../css/academic-cv.css";
 
-interface Education {
-  degree: string;
-  institution: string;
-  date: string;
-  location: string;
-  Focus?: string;
-  Grade?: string;
-}
-
-interface Experience {
-  role: string;
-  company: string;
-  date: string;
-  location: string;
-  achievements?: string[];
-}
-
-interface Skill {
-  category: string;
-  items: string[];
-}
-
-interface Publication {
-  title: string;
-  journal: string;
-  date: string;
-  link?: string;
-}
-
-interface Project {
-  name: string;
-  description: string;
-  keywords?: string[];
-}
-
-interface Language {
-  language: string;
-  proficiency: string;
-}
-
-interface CvData {
-  summary?: string;
-  researchInterests?: string[];
-  experience?: Experience[];
-  education?: Education[];
-  skills?: Skill[];
-  publications?: Publication[];
-  projects?: Project[];
-  Languages?: Language[];
-}
 
 interface Props {
-  cvData: CvData;
+  cvData: any;
   personalInfo: any;
 }
 
@@ -169,7 +119,7 @@ const AcademicCvTemplate = forwardRef<HTMLDivElement, Props>(({ cvData, personal
         {cvData.education && cvData.education.length > 0 && (
           <section className="acad-section">
             <h2 className="acad-section-title">Education</h2>
-            {cvData.education.map((edu, i) => (
+            {cvData.education.map((edu: any, i: number) => (
               <div key={i} className="acad-item print-avoid-break">
                 <div className="acad-item-header">
                   <h3 className="acad-role" contentEditable suppressContentEditableWarning>
@@ -207,7 +157,7 @@ const AcademicCvTemplate = forwardRef<HTMLDivElement, Props>(({ cvData, personal
           <section className="acad-section">
             <h2 className="acad-section-title">Publications</h2>
             <ol className="acad-pub-list">
-              {cvData.publications.map((pub, i) => (
+              {cvData.publications.map((pub: any, i: number) => (
                 <li key={i} className="acad-pub-item" contentEditable suppressContentEditableWarning>
                   <strong>{pub.title}</strong>. <em>{pub.journal}</em>, {pub.date}.
                   {pub.link && (
@@ -223,7 +173,7 @@ const AcademicCvTemplate = forwardRef<HTMLDivElement, Props>(({ cvData, personal
         {cvData.projects && cvData.projects.length > 0 && (
           <section className="acad-section">
             <h2 className="acad-section-title">Projects</h2>
-            {cvData.projects.map((proj, i) => (
+            {cvData.projects.map((proj: any, i: number) => (
               <div key={i} className="acad-item print-avoid-break">
                 <h3 className="acad-role" contentEditable suppressContentEditableWarning>
                   {proj.name}
@@ -233,7 +183,7 @@ const AcademicCvTemplate = forwardRef<HTMLDivElement, Props>(({ cvData, personal
                 </p>
                 {proj.keywords && proj.keywords.length > 0 && (
                   <div className="acad-keywords">
-                    {proj.keywords.map((kw, j) => (
+                    {proj.keywords.map((kw: any, j: number) => (
                       <span key={j} className="acad-keyword" contentEditable suppressContentEditableWarning>
                         {kw}
                       </span>
@@ -248,7 +198,7 @@ const AcademicCvTemplate = forwardRef<HTMLDivElement, Props>(({ cvData, personal
         {cvData.experience && cvData.experience.length > 0 && (
           <section className="acad-section">
             <h2 className="acad-section-title">Professional Experience</h2>
-            {cvData.experience.map((exp, i) => (
+            {cvData.experience.map((exp: any, i: number) => (
               <div key={i} className="acad-item print-avoid-break">
                 <div className="acad-item-header">
                   <h3 className="acad-role" contentEditable suppressContentEditableWarning>
@@ -263,7 +213,7 @@ const AcademicCvTemplate = forwardRef<HTMLDivElement, Props>(({ cvData, personal
                 </div>
                 {exp.achievements && exp.achievements.length > 0 && (
                   <ul className="acad-bullets">
-                    {exp.achievements.map((a, j) => (
+                    {exp.achievements.map((a: any, j: number) => (
                       <li key={j} contentEditable suppressContentEditableWarning>{a}</li>
                     ))}
                   </ul>
@@ -278,7 +228,7 @@ const AcademicCvTemplate = forwardRef<HTMLDivElement, Props>(({ cvData, personal
           <section className="acad-section">
             <h2 className="acad-section-title">Technical Skills</h2>
             <div className="acad-skills">
-              {cvData.skills.map((skill, i) => (
+              {cvData.skills.map((skill: any, i: number) => (
                 <div key={i} className="acad-skill-line">
                   <strong contentEditable suppressContentEditableWarning>{skill.category}:</strong>{" "}
                   <span contentEditable suppressContentEditableWarning>{skill.items.join(", ")}</span>
@@ -293,7 +243,7 @@ const AcademicCvTemplate = forwardRef<HTMLDivElement, Props>(({ cvData, personal
           <section className="acad-section">
             <h2 className="acad-section-title">Languages</h2>
             <div className="acad-skills">
-              {cvData.Languages.map((lang, i) => (
+              {cvData.Languages.map((lang: any, i: number) => (
                 <div key={i} className="acad-skill-line">
                   <strong contentEditable suppressContentEditableWarning>{lang.language}:</strong>{" "}
                   <span contentEditable suppressContentEditableWarning>{lang.proficiency}</span>

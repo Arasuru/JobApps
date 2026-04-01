@@ -82,33 +82,31 @@ export default function PdfToolsPage() {
         body: formData,
       });
 
-      // 1. Grab the raw response as plain text FIRST, no matter what it is.
+      //Grab the raw response as plain text FIRST
       const rawText = await res.text(); 
 
-      // 2. If the server threw a 500 error, stop here and show us the real problem.
       if (!res.ok) {
          console.error("The Server completely crashed:", rawText);
          alert(`Server Error: ${res.status}. Check console for details.`);
          return; // The 'finally' block below will still run and turn off the spinner!
       }
 
-      // 3. If it IS ok, now it is safe to turn that text into JSON.
+      //If it IS ok, now it is safe to turn that text into JSON.
       const data = JSON.parse(rawText);
 
       if (data.text) {
-        // 1. Package the text into a Markdown file (Blob)
+        //Package the text into a Markdown file (Blob)
         const blob = new Blob(["\uFEFF" + data.text.trim()], { type: 'text/markdown;charset=utf-8' });
         
-        // 2. Create an invisible download link
+        // Create an invisible download link
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
         
-        // 3. Name the file (If you have a 'files' state, we try to use its name, otherwise fallback)
         const originalName = files[0]?.name || 'document.pdf';
         link.download = originalName.replace(/\.pdf$/i, '.md'); 
         
-        // 4. Force the browser to click the link, then clean up the garbage
+        //Force the browser to click the link, then clean up the garbage
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
