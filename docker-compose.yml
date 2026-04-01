@@ -3,9 +3,9 @@ version: '3.8'
 
 services:
   # 1. The Python Extraction API
-  parser-backend:
-    build: ./parser-service
-    container_name: career-studio-parser
+  ai-backend:
+    build: ./backend
+    container_name: career-studio-backend
     ports:
       - "8000:8000"
 
@@ -17,7 +17,7 @@ services:
       - "3000:3000"
     environment:
       # This explicitly tells Next.js how to talk to the Python container!
-      - PARSER_URL=http://parser-backend:8000
+      - PARSER_URL=http://ai-backend:8000
       - GROQ_API_KEY=${GROQ_API_KEY}
     depends_on:
-      - parser-backend
+      - ai-backend
