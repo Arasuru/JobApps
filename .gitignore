@@ -43,6 +43,8 @@ next-env.d.ts
 
 # venv
 /venv/
-/parser-service/venv/
+/backend/venv/
 venv
 __pycache__
+backend/__pycache__
+backend/.env
