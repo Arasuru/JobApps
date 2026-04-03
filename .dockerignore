@@ -11,3 +11,7 @@ README.md
 venv
 __pycache__
 .env
+.env.local
+*.env
+*.env.local
+backend/.env

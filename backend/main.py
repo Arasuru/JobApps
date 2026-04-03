@@ -1,25 +1,165 @@
-# parser-service/main.py
+# backend/main.py
 import json
 from dotenv import load_dotenv
 import os
-from fastapi import FastAPI, UploadFile, File, Form
-import pymupdf4llm # An incredible library for PDF to Markdown
+
+import pymupdf4llm 
 import fitz
 import unicodedata
+
 from groq import Groq
+from prompts import build_extraction_prompt, build_cover_letter_prompt, build_tailor_resume_prompt
 
-load_dotenv()
+import logging
 
-app = FastAPI()
-groq_client = Groq()
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Depends, Request
+from pydantic import BaseModel
+from contextlib import asynccontextmanager # For lifespan context manager
+from fastapi.security import APIKeyHeader
+    
+#Logging Setup
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__) # Create a logger for this module
 
+#ENV variables
+if os.getenv("GROQ_API_KEY") is None:
+  load_dotenv()
 
-@app.post("/convert-to-md")
+# Groq Config
+GROQ_MODEL = "llama-3.3-70b-versatile"
+GROQ_EXTRACTION_TEMPERATURE = 0.1 # 👈 Low temperature for strict data extraction
+GROQ_GENERATION_TEMPERATURE = 0.5 # 👈 Moderate temperature for creative generation (cover letters, tailoring)
+
+#File Upload Limits
+MAX_FILE_SIZE_MB = 10
+MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
+
+#pydantic models for validation
+#Response Models
+class ProfileResponse(BaseModel):
+    Firstname: str = ""
+    Lastname: str = ""
+    email: str = ""
+    phone: str = ""
+    location: str = ""
+    linkedin: str = ""
+    IndustryPortfolio: str = ""
+    PhDPortfolio: str = ""
+
+class ExperienceItem(BaseModel):
+    role: str = ""
+    company: str = ""
+    date: str = ""
+    location: str = ""
+    achievements: list[str] = []
+
+class EducationItem(BaseModel):
+    degree: str = ""
+    institution: str = ""
+    date: str = ""
+    location: str = ""
+    Focus: str = ""
+    Grade: str = ""
+
+class SkillGroup(BaseModel):
+    category: str = ""
+    items: list[str] = []
+
+class Publication(BaseModel):
+    title: str = ""
+    journal: str = ""
+    date: str = ""
+    link: str = ""
+
+class Project(BaseModel):
+    name: str = ""
+    description: str = ""
+    keywords: list[str] = []
+
+class Language(BaseModel):
+    language: str = ""
+    proficiency: str = ""
+
+class Certification(BaseModel):
+    name: str = ""
+    issuer: str = ""
+    date: str = ""
+    link: str = ""
+
+class TailoredResume(BaseModel):
+    summary: str = ""
+    researchInterests: list[str] = []
+    experience: list[ExperienceItem] = []
+    education: list[EducationItem] = []
+    skills: list[SkillGroup] = []
+    publications: list[Publication] = []
+    projects: list[Project] = []
+    Languages: list[Language] = []
+    certifications: list[Certification] = []
+
+class TailoredResumeResponse(BaseModel):
+    tailored_resume: TailoredResume
+
+class CoverLetter(BaseModel):
+    recipientName: str = ""
+    recipientTitle: str = ""
+    companyName: str = ""
+    date: str = ""
+    greeting: str = ""
+    paragraphs: list[str] = []
+    signOff: str = ""
+
+class MarkdownResponse(BaseModel):
+    markdown: str
+
+class ErrorResponse(BaseModel):
+    error: str
+
+API_KEY = os.getenv("INTERNAL_API_KEY")
+api_key_header = APIKeyHeader(name="X-API-Key")
+
+def verify_api_key(key: str = Depends(api_key_header)):
+    if key != API_KEY:
+        raise HTTPException(
+            status_code=401,
+            detail="Unauthorized"
+        )
+
+#Lifespan context manager to initialize Groq client
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        logger.error("GROQ_API_KEY is not set in environment variables.")
+        raise RuntimeError("GROQ_API_KEY is required to run the application.")
+    
+    app.state.groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+    logger.info("Groq client initialized successfully.")
+
+    yield
+
+    logger.info("Shutting down application.")
+
+#Main APP
+app = FastAPI(lifespan=lifespan,
+              dependencies=[Depends(verify_api_key)], # Apply API key verification to all endpoints
+)
+
+#dependency to get Groq client from app state
+def get_groq_client() -> Groq:
+    return app.state.groq_client
+
+#Endpoints
+@app.post("/convert-to-md", response_model=MarkdownResponse)
 async def convert_pdf(file: UploadFile = File(...)):
+    pdf_bytes = await file.read()
+    if len(pdf_bytes) > MAX_FILE_SIZE_BYTES:
+        raise HTTPException(status_code=400, detail=f"File size exceeds the maximum limit of {MAX_FILE_SIZE_MB} MB.")
+    
+    if file.content_type != "application/pdf":
+        raise HTTPException(status_code=400, detail="Invalid file type. Only PDF files are accepted.")
+    
     try:
-        
-        pdf_bytes = await file.read()
-        
         #Convert the raw bytes into a PyMuPDF Document
         doc = fitz.open(stream=pdf_bytes, filetype="pdf")
         
@@ -30,157 +170,86 @@ async def convert_pdf(file: UploadFile = File(...)):
         
     except Exception as e:
         # This will print the actual error if it fails, instead of dumping the PDF to your terminal!
-        print(f"Python Error: {str(e)}")
-        return {"error": "Failed to parse PDF"}
+        logger.error("Failed to parse PDF", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to parse PDF")
 
-@app.post("/extract-profile")
-async def extract_profile(cv_markdown: str = Form(...)):
+
+@app.post("/extract-profile", response_model=ProfileResponse)
+async def extract_profile(cv_markdown: str = Form(...), groq_client: Groq = Depends(get_groq_client)):
     try:
-        prompt = f"""
-        You are a highly precise data extraction bot. 
-        Parse the user's resume/profile text and extract their personal details.
-
-        CRITICAL INSTRUCTION: You must respond with ONLY a valid, raw JSON object. 
-        If a field is missing from the text, leave the value as an empty string "".
-
-        Use EXACTLY this JSON structure:
-        {{
-          "Firstname": "Extracted Name",
-          "Lastname": "Extracted Surname",
-          "email": "Extracted Email",
-          "phone": "Extracted Phone",
-          "location": "City, State or Country",
-          "linkedin": "LinkedIn URL or handle",
-          "IndustryPortfolio": "Portfolio URL or handle",
-          "PhDPortfolio": "Portfolio URL or handle"
-        }}
-
-        CV TEXT TO PARSE:
-        {cv_markdown}
-        """
+        prompt = build_extraction_prompt(cv_markdown)
 
         chat_completion = groq_client.chat.completions.create(
             messages=[
                 {"role": "system", "content": "You are an elite data extraction bot. Output only valid JSON."},
                 {"role": "user", "content": prompt}
             ],
-            model="llama-3.3-70b-versatile",
+            model= GROQ_MODEL,
             response_format={"type": "json_object"},
-            temperature=0.1, # 👈 Low temperature for strict data extraction
+            temperature=GROQ_EXTRACTION_TEMPERATURE, 
+            timeout= 30, # Set a timeout for the request to prevent hanging
         )
 
         extracted_data = json.loads(chat_completion.choices[0].message.content)
         return extracted_data
 
+    except json.JSONDecodeError:
+        logger.error("Failed to parse Groq response as JSON", exc_info=True)
+        raise HTTPException(status_code=502, detail="AI service returned invalid response")
+
     except Exception as e:
-        print(f"Python Extraction Error: {str(e)}")
-        return {"error": "Failed to extract profile data"}
-    
+        logger.error("Unexpected error in extract_profile", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to extract profile data")
 
 
-@app.post("/generate-cover-letter")
-async def generate_cover_letter(cv_markdown: str = Form(...), job_description: str = Form(...)):
+@app.post("/generate-cover-letter", response_model=CoverLetter)
+async def generate_cover_letter(cv_markdown: str = Form(...), job_description: str = Form(...), groq_client: Groq = Depends(get_groq_client)):
     try:
-        prompt = f"""
-        Write a persuasive narrative linking the candidate\'s actual background to job needs without being cliché.
-        CRITICAL RULE - NO HALLUCINATION: 
-              Extract  relevantfacts, skills, and projects STRICTLY from the Master Profile. NEVER invent details or copy experiences from the Job Description. Use the Job Description ONLY as a filter to decide which parts of the Master Profile are relevant.
-              Do not include every skill or project or language from the Master Profile - only those that are relevant to the Job Description. If a skill or project is not relevant to the job, omit it entirely.
-
-        Return ONLY a raw, valid JSON object matching the schema below. NO markdown (\`\`\`json) and NO conversational text.
-        You MUST return a JSON object with exactly these keys:
-        {{
-          "recipientName": "Hiring Manager or Name",
-          "recipientTitle": "Title or Department",
-          "companyName": "Company Name",
-          "date": "Today's Date",
-          "greeting": "Dear [Name],",
-          "paragraphs": ["Opening paragraph...", "Body paragraph 1...", "Body paragraph 2...","Body paragraph 3...", "Closing paragraph..."],
-          "signOff": "Sincerely,"
-        }}
-
-        CV(Source of Truth - ONLY use facts from here):
-        {cv_markdown}
-
-        JD(Filter - Use ONLY to determine relevance):
-        {job_description}
-        """
-
+        prompt = build_cover_letter_prompt(cv_markdown, job_description)
         #Use Groq to send the prompt to the LLM and get back a structured JSON response
         chat_completion = groq_client.chat.completions.create(
             messages=[{"role": "system", "content": "You are an elite career coach. Write a professional, highly targeted cover letter based on this Profile and Job Description."},
                       {"role": "user", "content": prompt}],
-            model = "llama-3.3-70b-versatile",
+            model = GROQ_MODEL,
             response_format = {"type": "json_object"},
-            temperature = 0.5,
+            temperature = GROQ_GENERATION_TEMPERATURE,
+            timeout= 30, # Set a timeout for the request to prevent hanging
         )
 
         cover_letter = json.loads(chat_completion.choices[0].message.content)
         return cover_letter
     
+    except json.JSONDecodeError:
+        logger.error("Failed to parse Groq response as JSON", exc_info=True)
+        raise HTTPException(status_code=502, detail="AI service returned invalid response")
+
     except Exception as e:
-        print(f"Python Error: {str(e)}")
-        return {"error": "Failed to generate cover letter"}
+        logger.error("Unexpected error in generate_cover_letter", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to generate cover letter")
 
 
-@app.post("/tailor-resume")
-async def tailor_resume(cv_markdown: str = Form(...), job_description: str = Form(...)):
+@app.post("/tailor-resume", response_model=TailoredResumeResponse)
+async def tailor_resume(cv_markdown: str = Form(...), job_description: str = Form(...), groq_client: Groq = Depends(get_groq_client)):
     try:
-        prompt = f"""
-        You are an expert resume writer. Your task is to take the candidate's full CV (Master Profile) and the Job Description, and produce a tailored resume that highlights only the most relevant skills, experiences, and projects for that specific job. 
-
-        CRITICAL RULE - NO HALLUCINATION: 
-              Extract  relevantfacts, skills, and projects STRICTLY from the Master Profile. NEVER invent details or copy experiences from the Job Description. Use the Job Description ONLY as a filter to decide which parts of the Master Profile are relevant.
-              Do not include every skill or project or language from the Master Profile - only those that are relevant to the job. If a skill or project is not relevant to the job, omit it entirely.
-              Be concise. List only profile skills relevant to the job. Include max 3 most relevant projects.
-        
-        Return ONLY a raw, valid JSON object matching the schema below. NO markdown (\`\`\`json) and NO conversational text.
-        You MUST return a JSON object with exactly these keys:
-        {{
-          "summary": "Professional summary paragraph",
-          "researchInterests": ["Interest 1", "Interest 2"],
-          "experience": [
-            {{ "role": "Job Title", "company": "Company Name", "date": "MM/YYYY - MM/YYYY", "location": "City, Country", "achievements": ["Bullet 1", "Bullet 2"] }}
-          ],
-          "education": [
-            {{ "degree": "Degree Name", "institution": "University Name", "date": "YYYY - YYYY", "location": "City, Country", "Focus": "Relevant Focus Area", "Grade": "Final Grade" }}
-          ],
-          "skills": [
-            {{ "category": "Skill Group", "items": ["Skill1", "Skill2"] }}
-          ],
-          "publications": [
-            {{ "title": "Publication Title", "journal": "Journal Name", "date": "YYYY", "link": "URL" }}
-          ],
-          "projects": [
-            {{ "name": "Project Name", "description": "Brief description of the project, technologies used, and outcomes.", "keywords": ["Keyword1", "Keyword2"] }}
-          ],
-          "Languages": [
-            {{ "language": "Language Name", "proficiency": "Proficiency Level" }}
-          ],
-          "certifications": [
-            {{ "name": "Certification Name", "issuer": "Issuing Organization", "date": "MM/YYYY", "link": "URL" }}
-          ],
-        }}
-
-        CV(Source of Truth - ONLY use facts from here):
-        {cv_markdown}
-
-        JD(Filter - Use ONLY to determine relevance):
-        {job_description}
-        """
+        prompt = build_tailor_resume_prompt(cv_markdown, job_description)
 
         #Use Groq to send the prompt to the LLM and get back a structured JSON response
         chat_completion = groq_client.chat.completions.create(
             messages=[{"role": "system", "content": "You are an elite resume writer. Write a concise, highly targeted resume in Markdown format based on this Profile and Job Description."},
                       {"role": "user", "content": prompt}],
-            model = "llama-3.3-70b-versatile",
+            model = GROQ_MODEL,
             response_format={"type": "json_object"},
-            temperature = 0.5,
+            temperature = GROQ_GENERATION_TEMPERATURE,
+            timeout= 30, # Set a timeout for the request to prevent hanging
         )
 
         tailored_resume = json.loads(chat_completion.choices[0].message.content)
         return {"tailored_resume": tailored_resume}
     
+    except json.JSONDecodeError:
+        logger.error("Failed to parse Groq response as JSON", exc_info=True)
+        raise HTTPException(status_code=502, detail="AI service returned invalid response")
+
     except Exception as e:
-        print(f"Python Error: {str(e)}")
-        return {"error": "Failed to tailor resume"}
+        logger.error("Unexpected error in tailor_resume", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to tailor resume")
