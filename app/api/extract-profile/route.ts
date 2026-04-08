@@ -16,9 +16,6 @@ export async function POST(req: Request) {
     const pythonUrl = process.env.PARSER_URL || 'http://127.0.0.1:8000';
     const pythonResponse = await fetch(`${pythonUrl}/extract-profile`, {
       method: 'POST',
-      headers: {
-        "X-API-Key": process.env.INTERNAL_API_KEY || ""
-      },
       body: formData,
     });
 

@@ -23,9 +23,6 @@ export async function POST(req: Request) {
     const pythonResponse = await fetch(`${pythonUrl}${endpoint}`, {
       method: "POST",
       body: formData,
-      headers: {
-        "X-API-Key": process.env.INTERNAL_API_KEY || ""
-      }
     });
 
     let data = await pythonResponse.json();

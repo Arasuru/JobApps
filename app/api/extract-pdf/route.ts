@@ -7,9 +7,6 @@ export async function POST(request: Request) {
   const pythonResponse = await fetch(`${parserUrl}/convert-to-md`, {
     method: 'POST',
     body: formData,
-    headers: {
-        "X-API-Key": process.env.INTERNAL_API_KEY || ""
-    }
   });
 
   const data = await pythonResponse.json();

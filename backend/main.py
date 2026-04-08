@@ -8,7 +8,7 @@ from groq import Groq
 from fastapi import FastAPI, Depends
 
 #Import routers and dependencies
-from dependencies import verify_api_key
+#from dependencies import verify_api_key
 from parser import router as parser_router
 from generator import router as generator_router
 from tracker import router as tracker_router
@@ -41,10 +41,9 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="AI-Powered CV Builder API",
     lifespan=lifespan,
-    dependencies=[Depends(verify_api_key)], # Apply API key verification to all endpoints
 )
 
 #connect modular routers
-app.include_router(parser_router, prefix="/api/parser", tags=["Parser"])
-app.include_router(generator_router, prefix="/api/generator", tags=["Generator"])
-app.include_router(tracker_router, prefix="/api/tracker", tags=["Tracker"])
+app.include_router(parser_router)
+app.include_router(generator_router)
+app.include_router(tracker_router)
