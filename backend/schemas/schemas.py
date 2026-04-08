@@ -1,7 +1,50 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
+from typing import Optional
+from datetime import datetime
 
+#Models for database connection
+VALID_STATUSES = ["Wishlist", "Applied", "Interview", "Offer", "Rejected"]
+
+class ApplicationCreate(BaseModel):
+    company_name: str
+    job_title: str
+    status: str = Field(default="Wishlist")
+    job_url: Optional[str] = None
+    job_location: Optional[str] = None
+    notes: Optional[str] = None
+
+    @field_validator("status")
+    @classmethod
+    def validate_status(cls, v: str) -> str:
+        if v not in VALID_STATUSES:
+            raise ValueError(f"status must be one of {VALID_STATUSES}")
+        return v
+
+class ApplicationUpdate(BaseModel):
+    new_status: str
+
+    @field_validator("new_status")
+    @classmethod
+    def validate_status(cls, v: str) -> str:
+        if v not in VALID_STATUSES:
+            raise ValueError(f"status must be one of {VALID_STATUSES}")
+        return v
+
+class ApplicationResponse(BaseModel):
+    id: int
+    company_name: str
+    job_title: str
+    status: str
+    job_url: Optional[str] = None
+    job_location: Optional[str] = None
+    notes: Optional[str] = None
+    date_added: datetime
+
+    model_config = {"from_attributes": True}
+
+    
 #pydantic models for validation
-#Response Models
+#Response Models for API Endpoints
 class ProfileResponse(BaseModel):
     Firstname: str = ""
     Lastname: str = ""

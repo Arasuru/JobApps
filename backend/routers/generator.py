@@ -5,7 +5,7 @@ import logging
 from fastapi import APIRouter, Form, HTTPException, Depends
 from groq import Groq
 
-from models import CoverLetter, TailoredResumeResponse
+from schemas.schemas import CoverLetter, TailoredResumeResponse
 from dependencies import get_groq_client, GROQ_MODEL, GROQ_GENERATION_TEMPERATURE
 from prompts import build_cover_letter_prompt, build_tailor_resume_prompt
 

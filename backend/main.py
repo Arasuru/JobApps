@@ -7,11 +7,15 @@ from contextlib import asynccontextmanager # For lifespan context manager
 from groq import Groq
 from fastapi import FastAPI, Depends
 
+#database dependencies
+from database import Base, engine
+from models.application_tracker import ApplicationTracker # noqa: F401 - needed for Base to register the model
+
 #Import routers and dependencies
 #from dependencies import verify_api_key
-from parser import router as parser_router
-from generator import router as generator_router
-from tracker import router as tracker_router
+from routers.parser import router as parser_router
+from routers.generator import router as generator_router
+from routers.tracker import router as tracker_router
 
 #Logging Setup
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -25,6 +29,11 @@ if os.getenv("GROQ_API_KEY") is None:
 #Lifespan context manager to initialize Groq client
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    #DB setup
+    Base.metadata.create_all(bind=engine)
+    logger.info("Database tables created successfully.")
+
+    #groq client setup
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
         logger.error("GROQ_API_KEY is not set in environment variables.")

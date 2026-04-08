@@ -8,7 +8,7 @@ import unicodedata
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends
 from groq import Groq
 
-from models import MarkdownResponse, ProfileResponse
+from schemas.schemas import MarkdownResponse, ProfileResponse
 from dependencies import get_groq_client, GROQ_MODEL, GROQ_EXTRACTION_TEMPERATURE, MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB
 from prompts import build_extraction_prompt
 
