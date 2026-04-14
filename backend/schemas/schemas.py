@@ -42,6 +42,8 @@ class ApplicationResponse(BaseModel):
 
     model_config = {"from_attributes": True}
 
+class MessageResponse(BaseModel):
+    message: str
     
 #pydantic models for validation
 #Response Models for API Endpoints

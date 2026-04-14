@@ -13,7 +13,7 @@ from dependencies import get_groq_client, GROQ_MODEL, GROQ_EXTRACTION_TEMPERATUR
 from prompts import build_extraction_prompt
 
 logger = logging.getLogger(__name__)
-router = APIRouter()
+router = APIRouter(tags=["Parser"])
 
 @router.post("/convert-to-md", response_model=MarkdownResponse)
 async def convert_pdf(file: UploadFile = File(...)):

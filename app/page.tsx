@@ -25,7 +25,7 @@ export default function HomePage() {
             </div>
             <h2 className="tile-title">PDF Toolkit</h2>
             <p className="tile-desc">Convert existing resumes to Markdown, merge application documents, or split PDF pages.</p>
-            <div className="tile-arrow" style={{ color: '#5c564e' }}>Launch Tools &rarr;</div>
+            <div className="tile-arrow">Launch Tools &rarr;</div>
           </Link>
 
           {/* Active Builder Tile */}
@@ -36,6 +36,20 @@ export default function HomePage() {
             <h2 className="tile-title">Document Builder</h2>
             <p className="tile-desc">Generate ATS-friendly CVs and tailored cover letters in seconds using your master Markdown profile.</p>
             <div className="tile-arrow">Launch App &rarr;</div>
+          </Link>
+
+          {/* NEW: Application Tracker Tile */}
+          <Link href="/application-tracker" className="tile">
+            <div className="tile-icon" style={{ background: '#e0f2fe', color: '#0369a1' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="9" y1="3" x2="9" y2="21"></line>
+                <line x1="15" y1="3" x2="15" y2="21"></line>
+              </svg>
+            </div>
+            <h2 className="tile-title">Application Tracker</h2>
+            <p className="tile-desc">Manage your job hunt with an interactive Kanban board directly linked to your AI applications.</p>
+            <div className="tile-arrow">Open Tracker &rarr;</div>
           </Link>
 
           {/* Placeholder Tile for future expansion */}

@@ -10,7 +10,7 @@ from dependencies import get_groq_client, GROQ_MODEL, GROQ_GENERATION_TEMPERATUR
 from prompts import build_cover_letter_prompt, build_tailor_resume_prompt
 
 logger = logging.getLogger(__name__)
-router = APIRouter()
+router = APIRouter(tags=["Document Generation"])
 
 @router.post("/generate-cover-letter", response_model=CoverLetter)
 async def generate_cover_letter(cv_markdown: str = Form(...), job_description: str = Form(...), groq_client: Groq = Depends(get_groq_client)):

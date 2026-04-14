@@ -1,26 +1,35 @@
 # backend/tracker.py
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
 
 from database import get_db
 from models.application_tracker import ApplicationTracker
-from schemas.schemas import ApplicationCreate, ApplicationResponse, ApplicationUpdate
+from schemas.schemas import ApplicationCreate, ApplicationResponse, ApplicationUpdate, MessageResponse
+
+import logging
+logger = logging.getLogger(__name__)
+
 
 # API ROUTER & ENDPOINTS
 router = APIRouter(
     prefix="/tracker",
+    tags=["Application Tracker"]
 )
 
 @router.post("/applications", response_model=ApplicationResponse)
 async def create_application(app_in: ApplicationCreate, db: Session = Depends(get_db)):
     db_app = ApplicationTracker(**app_in.model_dump())
-    db.add(db_app)
-    db.commit()
-    db.refresh(db_app)
-    return db_app
+    try:
+        db.add(db_app)
+        db.commit()
+        db.refresh(db_app)
+        return db_app
+    except Exception:
+        logger.error("Failed to create application", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to create application")
+    
 
-@router.get("/applications", response_model=List[ApplicationResponse])
+@router.get("/applications", response_model=list[ApplicationResponse])
 async def get_all_applications(db: Session = Depends(get_db)):
     return db.query(ApplicationTracker).all()
 
@@ -38,7 +47,7 @@ async def update_application_status(app_id: int, update_data: ApplicationUpdate,
     return db_app
 
 
-@router.delete("/applications/{app_id}")
+@router.delete("/applications/{app_id}", response_model = MessageResponse)
 async def delete_application(app_id: int, db: Session = Depends(get_db)):
     db_app = db.query(ApplicationTracker).filter(ApplicationTracker.id == app_id).first()
     
