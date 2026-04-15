@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager # For lifespan context manager
 
 from groq import Groq
 from fastapi import FastAPI, Depends
+from fastapi.middleware.cors import CORSMiddleware
 
 #database dependencies
 from database import Base, engine
@@ -50,6 +51,14 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="AI-Powered CV Builder API",
     lifespan=lifespan,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # In production, restrict this to your actual domains/extension ID
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 #connect modular routers
