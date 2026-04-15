@@ -1,79 +1,82 @@
 import pandas as pd
 import spacy
 from spacy.tokens import DocBin
+from spacy.util import filter_spans
 import re
+from sklearn.model_selection import train_test_split
 
-df = pd.read_csv("data/job_dataset_20260414_121206.csv")
+# 1. Load the cleaned dataset
+df = pd.read_csv("./data/MASTER_CLEANED_JOBS.csv") 
 
-nlp = spacy.load("en_core_web_sm")
-db = DocBin()
+# 2. Split the data (80% for training, 20% for testing)
+# random_state=42 ensures the shuffle is exactly the same every time you run it
+train_df, dev_df = train_test_split(df, test_size=0.2, random_state=42)
 
-print(f"Processing {len(df)} rows...")
+print(f"Total jobs: {len(df)}")
+print(f"Training on: {len(train_df)} jobs")
+print(f"Testing on: {len(dev_df)} jobs\n")
 
-missed_entities = 0
-success_count = 0
-
-for idx, row in df.iterrows():
-    text = str(row["raw_scraped_text"])
-
-    if not text or text == "nan":
-        continue
-
-    doc = nlp.make_doc(text)
-
-    ents = []
-
-    entities_to_find ={
-        "JOB_TITLE": str(row['job_title']),
-        "COMPANY": str(row['company_name']),
-        "LOCATION": str(row['location']),
-        "SALARY": str(row['salary_range']),
-        "experience_level": str(row['experience_required']),
-        "employment_type": str(row['employment_type']),
-    }
+# 3. Create a reusable function to build the .spacy files
+def create_spacy_dataset(dataframe, output_filename):
+    nlp = spacy.blank("en")
+    db = DocBin()
+    successful = 0
     
-    # 3. Handle the pipe-separated skills
-    if pd.notna(row['technical_skills']):
-        skills = [s.strip() for s in str(row['technical_skills']).split('|')]
-        for skill in skills:
-            if skill:
-                 # Add each skill to our search dictionary
-                 entities_to_find[f"SKILL_{skill}"] = skill 
-                 
-    # 4. Search the raw text for the exact strings
-    for label, search_string in entities_to_find.items():
-        if search_string and search_string != 'nan':
-            # Use regex to find the EXACT character indices of the string in the text
-            # We use re.escape to handle weird characters like $ or +
-            matches = list(re.finditer(re.escape(search_string), text))
+    for idx, row in dataframe.iterrows():
+        text = str(row['raw_scraped_text'])
+        if not text or text == 'nan':
+            continue
             
-            if matches:
-                # If found, grab the start and end position of the first match
-                start = matches[0].start()
-                end = matches[0].end()
-                
-                # If it was a skill, change the label back to just "SKILL"
-                final_label = "SKILL" if label.startswith("SKILL_") else label
-                
-                # Create the spaCy entity span
-                span = doc.char_span(start, end, label=final_label)
-                if span is not None:
-                    ents.append(span)
-            else:
-                missed_entities += 1
+        doc = nlp.make_doc(text)
+        ents = []
+        
+        entities_to_find = {
+            "JOB_TITLE": str(row['job_title']),
+            "COMPANY": str(row['company_name']),
+            "LOCATION": str(row['location']),
+            "SALARY": str(row['salary_range']),
+            "EXPERIENCE": str(row['experience_required']),
+            "EMPLOYMENT_TYPE": str(row['employment_type']),
+        }
 
-    # 5. Save the labeled document
-    try:
-        doc.ents = ents
-        db.add(doc)
-        success_count += 1
-    except ValueError as e:
-        # This happens if entities overlap (e.g., "Senior Software Engineer" and "Software Engineer" both try to claim the same text)
-        print(f"Skipping row {idx} due to overlapping entities.")
+        if 'technical_skills' in row and pd.notna(row['technical_skills']):
+            skills = [s.strip() for s in str(row['technical_skills']).split('|')]
+            for skill in skills:
+                if skill:
+                     entities_to_find[f"SKILL_{skill}"] = skill 
+        
+        if 'soft_skills' in row and pd.notna(row['soft_skills']):
+            skills = [s.strip() for s in str(row['soft_skills']).split('|')]
+            for skill in skills:
+                if skill:
+                     entities_to_find[f"SKILL_{skill}"] = skill 
+                     
+        for label, search_string in entities_to_find.items():
+            if search_string and search_string != 'nan':
+                if search_string.isalpha():
+                    pattern = r'\b' + re.escape(search_string) + r'\b'
+                else:
+                    pattern = re.escape(search_string)
+                    
+                for match in re.finditer(pattern, text, re.IGNORECASE):
+                    final_label = "SKILL" if label.startswith("SKILL_") else label
+                    span = doc.char_span(match.start(), match.end(), label=final_label)
+                    if span is not None:
+                        ents.append(span)
 
-# 6. Save the data to disk in spaCy's highly efficient binary format
-db.to_disk("./train.spacy")
-print(f"\n✅ Auto-annotation complete!")
-print(f"Successfully processed {success_count} rows.")
-print(f"Could not find exact matches for {missed_entities} entities (The LLM Summarization Trap).")
-print("Saved training data to ./train.spacy")
+        try:
+            doc.ents = filter_spans(ents)
+            db.add(doc)
+            successful += 1
+        except ValueError:
+            pass
+            
+    db.to_disk(output_filename)
+    print(f"✅ Saved {successful} records to {output_filename}")
+
+# 4. Generate both files!
+print("Building Training Dataset...")
+create_spacy_dataset(train_df, "./train.spacy")
+
+print("\nBuilding Development Dataset...")
+create_spacy_dataset(dev_df, "./dev.spacy")

@@ -48,6 +48,10 @@ venv
 __pycache__
 backend/__pycache__
 backend/.env
+nlp_engine/data/
 
 *.csv
 *.spacy
+
+#trained AI models
+nlp_engine/models/
