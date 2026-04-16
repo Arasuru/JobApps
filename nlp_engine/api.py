@@ -11,10 +11,10 @@ app = FastAPI(
 
 try: 
     print("Loading Spacy model...")
-    nlp = spacy.load("en_core_web_sm")
+    nlp = spacy.load("./models/model-best")
     print("Spacy model loaded successfully.")
 except OSError as e:
-    raise RuntimeError("Model not found. Run: python -m spacy download en_core_web_sm")
+    raise RuntimeError("Model not found. Please ensure the model is trained and located at './models/model-best'.")
 
 class ExtractionRequest(BaseModel):
     raw_text: str

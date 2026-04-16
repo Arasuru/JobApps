@@ -1,25 +1,46 @@
-# /docker-compose.yml
 version: '3.8'
 
 services:
-  # 1. The Python Extraction API
-  ai-backend:
-    build: ./backend
-    container_name: career-studio-backend
-    ports:
-      - "8000:8000"
-    environment:
-      - GROQ_API_KEY=${GROQ_API_KEY}
-
-  # 2. The Next.js Frontend
-  web-frontend:
-    build: .
-    container_name: career-studio-web
+  # 1. Next.js Frontend (Root Directory)
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     environment:
-      # This explicitly tells Next.js how to talk to the Python container!
-      - PARSER_URL=http://ai-backend:8000
-      - NEXT_PUBLIC_PARSER_URL=http://127.0.0.1:8000
-    depends_on:
-      - ai-backend
+      # Allows the browser to talk to your main FastAPI backend
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    volumes:
+      # Hot reloading for Next.js
+      - ./frontend:/app
+      - ./frontend/app/node_modules
+      - /app/.next
+
+  # 2. Main FastAPI Backend (Tracker & Groq Integration)
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      # Passes the .env variables to the container
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+      # Instructs the backend to call the NLP container via Docker's internal network
+      - NLP_ENGINE_URL=http://nlp_engine:8001/extract
+    volumes:
+      # Maps your local backend folder to the container for live code updates
+      - ./backend:/app 
+
+  # 3. SpaCy NLP Microservice
+  nlp_engine:
+    build:
+      context: ./nlp_engine
+      dockerfile: Dockerfile # Assuming you added the Dockerfile in the nlp_engine folder
+    ports:
+      - "8001:8001"
+    volumes:
+      # Maps your local nlp_engine folder to the container
+      - ./nlp_engine:/app

@@ -20,6 +20,10 @@ class ApplicationCreate(BaseModel):
             raise ValueError(f"status must be one of {VALID_STATUSES}")
         return v
 
+class ExtensionPayload(BaseModel):
+    url: str
+    raw_text: str
+    
 class ApplicationUpdate(BaseModel):
     new_status: str
 
