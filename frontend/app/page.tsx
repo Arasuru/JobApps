@@ -39,7 +39,7 @@ export default function HomePage() {
           </Link>
 
           {/* NEW: Application Tracker Tile */}
-          <Link href="/application-tracker" className="tile">
+          <div className="tile" style={{ opacity: 0.65, cursor: 'not-allowed' }}>
             <div className="tile-icon" style={{ background: '#e0f2fe', color: '#0369a1' }}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -49,8 +49,8 @@ export default function HomePage() {
             </div>
             <h2 className="tile-title">Application Tracker</h2>
             <p className="tile-desc">Manage your job hunt with an interactive Kanban board directly linked to your AI applications.</p>
-            <div className="tile-arrow">Open Tracker &rarr;</div>
-          </Link>
+            <div className="tile-arrow">Coming Soon</div>
+          </div>
 
           {/* Placeholder Tile for future expansion */}
           <div className="tile" style={{ opacity: 0.65, cursor: 'not-allowed' }}>

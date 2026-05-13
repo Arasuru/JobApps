@@ -29,6 +29,8 @@ COPY --from=builder /app/.next/standalone ./
 # The static folder contains your CSS and optimized images
 COPY --from=builder /app/.next/static ./.next/static
 
+RUN ls -la /app
+
 EXPOSE 3000
 
 # Standalone mode uses server.js instead of 'npm start'

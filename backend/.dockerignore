@@ -1,9 +1,11 @@
 Dockerfile
 .dockerignore
-node_modules
-npm-debug.log
+__pycache__
+*.pyc
+*.pyo
+venv
+.venv
 README.md
-.next/cache
 .git
 .gitignore
 .env

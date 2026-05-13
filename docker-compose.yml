@@ -11,11 +11,8 @@ services:
     environment:
       # Allows the browser to talk to your main FastAPI backend
       - NEXT_PUBLIC_API_URL=http://localhost:8000
-    volumes:
-      # Hot reloading for Next.js
-      - ./frontend:/app
-      - ./frontend/app/node_modules
-      - /app/.next
+      - PARSER_URL=http://backend:8000
+      # Passes the .env variables to the container
 
   # 2. Main FastAPI Backend (Tracker & Groq Integration)
   backend:
