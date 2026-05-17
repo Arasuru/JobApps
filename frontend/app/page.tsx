@@ -28,13 +28,23 @@ export default function HomePage() {
             <div className="tile-arrow">Launch Tools &rarr;</div>
           </Link>
 
-          {/* Active Builder Tile */}
-          <Link href="/builder" className="tile">
+          {/* Active CV-writer Tile */}
+          <Link href="/cv-writer" className="tile">
             <div className="tile-icon">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             </div>
-            <h2 className="tile-title">Document Builder</h2>
-            <p className="tile-desc">Generate ATS-friendly CVs and tailored cover letters in seconds using your master Markdown profile.</p>
+            <h2 className="tile-title">CV/Resume Builder</h2>
+            <p className="tile-desc">Generate ATS-friendly CVs in seconds using your master Markdown profile.</p>
+            <div className="tile-arrow">Launch App &rarr;</div>
+          </Link>
+
+          {/* Active Cover Letter Builder Tile */}
+          <Link href="/cover-letter" className="tile">
+            <div className="tile-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            </div>
+            <h2 className="tile-title">Cover Letter Builder</h2>
+            <p className="tile-desc">Create compelling cover letters tailored to each job application.</p>
             <div className="tile-arrow">Launch App &rarr;</div>
           </Link>
 

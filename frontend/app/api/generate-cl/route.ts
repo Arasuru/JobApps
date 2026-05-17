@@ -16,7 +16,7 @@ export async function POST(req: Request) {
 
     //Choosing endpoint URL based in react tab
     const pythonUrl = process.env.PARSER_URL || "http://127.0.0.1:8000"; // Default to localhost for local development
-    const endpoint = "/tailor-resume";
+    const endpoint = "/generate-cover-letter";
 
     const pythonResponse = await fetch(`${pythonUrl}${endpoint}`, {
       method: "POST",
@@ -25,11 +25,11 @@ export async function POST(req: Request) {
 
     let data = await pythonResponse.json();
 
-    // safeguardHandle the case where tailored_resume is a JSON string
-    if (data.tailored_resume && typeof data.tailored_resume === "string") {
-       data = JSON.parse(data.tailored_resume);
-    } else if (data.tailored_resume) {
-       data = data.tailored_resume;
+    // safeguardHandle the case where cover_letter is a JSON string
+    if (data.cover_letter && typeof data.cover_letter === "string") {
+       data = JSON.parse(data.cover_letter);
+    } else if (data.cover_letter) {
+       data = data.cover_letter;
     }
 
     return NextResponse.json({ documentData: data });
